@@ -91,23 +91,36 @@ namespace PdfConverter
                     var fn = Path.GetFileNameWithoutExtension(file);
                     if (ext.ToLower() == ".tiff" || ext.ToLower() == ".tif" || ext.ToLower() == ".jpg" || ext.ToLower() == ".jpeg")
                     {
-                        PdfDocument doc = new PdfDocument();
-                        PdfSection section = doc.Sections.Add();
-                        PdfPageBase page = doc.Pages.Add();
+                        using (Image objImage = Image.FromFile(file))
+                        {
+                            PdfImage pdfimage = PdfImage.FromFile(file);
 
-                        //Load a tiff image from system
-                        PdfImage image = PdfImage.FromFile(file);
-                        //Set image display location and size in PDF
-                        float widthFitRate = image.PhysicalDimension.Width / page.Canvas.ClientSize.Width;
-                        float heightFitRate = image.PhysicalDimension.Height / page.Canvas.ClientSize.Height;
-                        float fitRate = Math.Max(widthFitRate, heightFitRate);
-                        float fitWidth = image.PhysicalDimension.Width / fitRate;
-                        float fitHeight = image.PhysicalDimension.Height / fitRate;
-                        page.Canvas.DrawImage(image, 0, 30, fitWidth, fitHeight);
+                            PdfDocument doc = new PdfDocument { PageSettings = {  Size = PdfPageSize.A4 } };
+                            //PdfUnitConvertor uinit = new PdfUnitConvertor();
+                            //SizeF pageSize = uinit.ConvertFromPixels(objImage.Size, PdfGraphicsUnit.Point);
+                            PdfPageBase page = doc.Pages.Add(objImage.Size, new PdfMargins(0f));
+                            page.Canvas.DrawImage(pdfimage, new PointF(0, 0), objImage.Size);
+                            doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                            doc.Close();
+                        }
+                            //Load a tiff image from system
+                            
+                        //doc.Close();
+                        //PdfSection section = doc.Sections.Add();
+                        //PdfPageBase page = doc.Pages.Add();
 
-                        //save and launch the file
-                        doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
-                        doc.Close();
+
+                        ////Set image display location and size in PDF
+                        //float widthFitRate = image.PhysicalDimension.Width / page.Canvas.ClientSize.Width;
+                        //float heightFitRate = image.PhysicalDimension.Height / page.Canvas.ClientSize.Height;
+                        //float fitRate = Math.Max(widthFitRate, heightFitRate);
+                        //float fitWidth = image.PhysicalDimension.Width / fitRate;
+                        //float fitHeight = image.PhysicalDimension.Height / fitRate;
+                        //page.Canvas.DrawImage(image, 0, 30, fitWidth, fitHeight);
+
+                        ////save and launch the file
+                        //doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                        //doc.Close();
                     }
                     else if (ext.ToLower() == ".html" || ext.ToLower() == ".htm")
                     {
