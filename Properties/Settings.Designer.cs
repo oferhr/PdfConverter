@@ -34,5 +34,17 @@ namespace PdfConverter.Properties {
                 this["DirPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ArchivePath {
+            get {
+                return ((string)(this["ArchivePath"]));
+            }
+            set {
+                this["ArchivePath"] = value;
+            }
+        }
     }
 }

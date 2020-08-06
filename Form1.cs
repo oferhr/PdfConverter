@@ -18,7 +18,11 @@ namespace PdfConverter
         public Form1()
         {
             InitializeComponent();
-
+            var archivePath = Properties.Settings.Default.ArchivePath;
+            if (!string.IsNullOrEmpty(archivePath))
+            {
+                txtArchive.Text = archivePath;
+            }
             var dirPath = Properties.Settings.Default.DirPath;
             if (!string.IsNullOrEmpty(dirPath))
             {
@@ -44,7 +48,7 @@ namespace PdfConverter
         private void btnStart_Click(object sender, EventArgs e)
         {
 
-            if (string.IsNullOrEmpty(txtDir.Text))
+            if (string.IsNullOrEmpty(txtDir.Text) || string.IsNullOrEmpty(txtArchive.Text))
             {
                 MessageBox.Show("יש לבחור תיקייה");
                 return;
@@ -52,7 +56,133 @@ namespace PdfConverter
             SimpleLog.SetLogFile(".\\Log", "Log_");
             progressBar1.Visible = true;
             progressBar1.Value = 0;
+            System.Windows.Forms.Application.DoEvents();
+
+            if (!PrepareInviorment())
+            {
+                MessageBox.Show("העתקת קבצים לארכיון נכשלה");
+                return;
+            }
+            txtDetails.Text += @"Finnish copying files to archive" + Environment.NewLine;
+            txtDetails.Text += @"Starting to convert files" + Environment.NewLine;
+            txtDetails.SelectionStart = txtDetails.Text.Length;
+            txtDetails.ScrollToCaret();
+            System.Windows.Forms.Application.DoEvents();
+            if (!ConvertFiles())
+            {
+                MessageBox.Show("המרת הקבצים נכשלה");
+                return;
+            }
+
+            if (!MergeAndClean())
+            {
+                MessageBox.Show("איחוד הקבצים נכשל");
+                return;
+            }
+            
+
+            progressBar1.Value = 100;
+            System.Windows.Forms.Application.DoEvents();
+            MessageBox.Show("הפעולה הסתיימה בהצלחה");
+
+
+        }
+        private bool MergeAndClean()
+        {
+            try
+            {
+                string path = txtDir.Text;
+                string targetDirectory = Path.Combine(path, DateTime.Now.ToString("yyyyMMddHHmmss"));
+                Directory.CreateDirectory(targetDirectory);
+
+
+                var dirInfo = new DirectoryInfo(path);
+                var lDir = dirInfo.GetDirectories("*", SearchOption.TopDirectoryOnly).ToList();
+                var llfiles = new List<string>();
+                foreach (var dir in lDir)
+                {
+                    if (dir.FullName == targetDirectory)
+                    {
+                        continue;
+                    }
+                    txtDetails.Text += @"Merging folder - " + dir.Name + Environment.NewLine;
+                    txtDetails.SelectionStart = txtDetails.Text.Length;
+                    txtDetails.ScrollToCaret();
+                    System.Windows.Forms.Application.DoEvents();
+                    var lFiles = Directory.GetFiles(dir.FullName, "*.pdf", SearchOption.TopDirectoryOnly);
+                    foreach (var lfile in lFiles)
+                    {
+                        llfiles.Add(lfile);
+                    }
+
+                    var files = llfiles.ToArray();
+                    var outputFile = Path.Combine(targetDirectory, dir.Name + ".pdf");
+                    PdfDocumentBase doc = PdfDocument.MergeFiles(files);
+                    doc.Save(outputFile, FileFormat.PDF);
+                    txtDetails.Text += @"Deleting folder - " + dir.Name + Environment.NewLine;
+                    txtDetails.SelectionStart = txtDetails.Text.Length;
+                    txtDetails.ScrollToCaret();
+                    System.Windows.Forms.Application.DoEvents();
+                    dir.Delete(true);
+                    llfiles = new List<string>();
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                SimpleLog.Log(ex);
+                txtDetails.Text += Environment.NewLine;
+                txtDetails.Text += @"ERROR Merging files - " + ex.Message + Environment.NewLine;
+                txtDetails.Text += Environment.NewLine;
+                System.Windows.Forms.Application.DoEvents();
+                return false;
+            }
+            //open pdf documents           
+            
+
+        }
+        private bool PrepareInviorment()
+        {
+            try
+            {
+                string archive = txtArchive.Text;
+                string targetDirectory = Path.Combine(archive, DateTime.Now.ToString("yyyyMMddHHmmss"));
+                txtDetails.Text += @"Creating Folder : " + targetDirectory + Environment.NewLine;
+                txtDetails.SelectionStart = txtDetails.Text.Length;
+                txtDetails.ScrollToCaret();
+                System.Windows.Forms.Application.DoEvents();
+
+                Directory.CreateDirectory(targetDirectory);
+
+                var diSource = new DirectoryInfo(txtDir.Text);
+                var diTarget = new DirectoryInfo(targetDirectory);
+
+                txtDetails.Text += @"Copy content from base folder to archive" + Environment.NewLine;
+                txtDetails.SelectionStart = txtDetails.Text.Length;
+                txtDetails.ScrollToCaret();
+                System.Windows.Forms.Application.DoEvents();
+
+                CopyAll(diSource, diTarget);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                SimpleLog.Log(ex);
+                txtDetails.Text += Environment.NewLine;
+                txtDetails.Text += @"ERROR Copying files to archive - "  + ex.Message + Environment.NewLine;
+                txtDetails.Text += Environment.NewLine;
+                System.Windows.Forms.Application.DoEvents();
+                return false;
+            }
+
+            
+        }
+        private bool ConvertFiles()
+        {
+            bool isOK = true;
             string path = txtDir.Text;
+            
             //string dPath = Path.Combine(path, "PDF");
             var dirInfo = new DirectoryInfo(path);
             var lDir = dirInfo.GetDirectories("*", SearchOption.TopDirectoryOnly).ToList();
@@ -95,7 +225,7 @@ namespace PdfConverter
                         {
                             PdfImage pdfimage = PdfImage.FromFile(file);
 
-                            PdfDocument doc = new PdfDocument { PageSettings = {  Size = PdfPageSize.A4 } };
+                            PdfDocument doc = new PdfDocument { PageSettings = { Size = PdfPageSize.A4 } };
                             //PdfUnitConvertor uinit = new PdfUnitConvertor();
                             //SizeF pageSize = uinit.ConvertFromPixels(objImage.Size, PdfGraphicsUnit.Point);
                             PdfPageBase page = doc.Pages.Add(objImage.Size, new PdfMargins(0f));
@@ -103,8 +233,8 @@ namespace PdfConverter
                             doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
                             doc.Close();
                         }
-                            //Load a tiff image from system
-                            
+                        //Load a tiff image from system
+
                         //doc.Close();
                         //PdfSection section = doc.Sections.Add();
                         //PdfPageBase page = doc.Pages.Add();
@@ -155,6 +285,7 @@ namespace PdfConverter
                 }
                 catch (Exception ex)
                 {
+                    isOK = false;
                     SimpleLog.Log(ex);
                     txtDetails.Text += Environment.NewLine;
                     txtDetails.Text += @"ERROR Converting file - " + file + "----" + ex.Message + Environment.NewLine;
@@ -162,16 +293,46 @@ namespace PdfConverter
                 }
 
             }
-            progressBar1.Value = 100;
-            System.Windows.Forms.Application.DoEvents();
-            MessageBox.Show("הפעולה הסתיימה בהצלחה");
-
-
+            return isOK;
         }
 
+        public static void CopyAll(DirectoryInfo source, DirectoryInfo target)
+        {
+            Directory.CreateDirectory(target.FullName);
+
+            // Copy each file into the new directory.
+            foreach (FileInfo fi in source.GetFiles())
+            {
+                Console.WriteLine(@"Copying {0}\{1}", target.FullName, fi.Name);
+                fi.CopyTo(Path.Combine(target.FullName, fi.Name), true);
+            }
+
+            // Copy each subdirectory using recursion.
+            foreach (DirectoryInfo diSourceSubDir in source.GetDirectories())
+            {
+                DirectoryInfo nextTargetSubDir =
+                    target.CreateSubdirectory(diSourceSubDir.Name);
+                CopyAll(diSourceSubDir, nextTargetSubDir);
+            }
+        }
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void btnBrowseArchive_Click(object sender, EventArgs e)
+        {
+            using (var fbd = new FolderBrowserDialog())
+            {
+                DialogResult result = fbd.ShowDialog();
+
+                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                {
+                    Properties.Settings.Default.ArchivePath = fbd.SelectedPath;
+                    Properties.Settings.Default.Save();
+                    txtArchive.Text = fbd.SelectedPath;
+                }
+            }
         }
     }
 }
