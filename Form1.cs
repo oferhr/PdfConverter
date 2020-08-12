@@ -18,6 +18,7 @@ namespace PdfConverter
         public Form1()
         {
             InitializeComponent();
+            
             var archivePath = Properties.Settings.Default.ArchivePath;
             if (!string.IsNullOrEmpty(archivePath))
             {
