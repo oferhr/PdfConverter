@@ -6,6 +6,7 @@ using Spire.Pdf.HtmlConverter;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -220,7 +221,7 @@ namespace PdfConverter
                     System.Windows.Forms.Application.DoEvents();
                     var ext = Path.GetExtension(file);
                     var fn = Path.GetFileNameWithoutExtension(file);
-                    if (ext.ToLower() == ".tiff" || ext.ToLower() == ".tif" || ext.ToLower() == ".jpg" || ext.ToLower() == ".jpeg")
+                    if (ext.ToLower() == ".jpg" || ext.ToLower() == ".jpeg")
                     {
                         using (Image objImage = Image.FromFile(file))
                         {
@@ -252,6 +253,25 @@ namespace PdfConverter
                         ////save and launch the file
                         //doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
                         //doc.Close();
+                    }
+                    else if (ext.ToLower() == ".tiff" || ext.ToLower() == ".tif")
+                    {
+                        using (PdfDocument doc = new PdfDocument())
+                        {
+                            doc.PageSettings.Size = PdfPageSize.A4;
+                            Image tiffImage = Image.FromFile(file);
+                            Image[] images = SplitTIFFImage(tiffImage);
+
+                            for (int i = 0; i < images.Length; i++)
+                            {
+                                PdfImage pdfImg = PdfImage.FromImage(images[i]);
+                                PdfPageBase page = doc.Pages.Add(new SizeF(pdfImg.Width, pdfImg.Height));
+                                page.Canvas.DrawImage(pdfImg, new PointF(0, 0), new SizeF(pdfImg.Width, pdfImg.Height));
+                            }
+                            doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+
+                        }
+
                     }
                     else if (ext.ToLower() == ".html" || ext.ToLower() == ".htm")
                     {
@@ -295,6 +315,23 @@ namespace PdfConverter
 
             }
             return isOK;
+        }
+        public static Image[] SplitTIFFImage(Image tiffImage)
+        {
+            int frameCount = tiffImage.GetFrameCount(FrameDimension.Page);
+            Image[] images = new Image[frameCount];
+            Guid objGuid = tiffImage.FrameDimensionsList[0];
+            FrameDimension objDimension = new FrameDimension(objGuid);
+            for (int i = 0; i<frameCount; i++)
+            {
+                tiffImage.SelectActiveFrame(objDimension, i);
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    tiffImage.Save(ms, ImageFormat.Tiff);
+                    images[i] = Image.FromStream(ms);
+                }
+            }
+            return images;
         }
 
         public static void CopyAll(DirectoryInfo source, DirectoryInfo target)
