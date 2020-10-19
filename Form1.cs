@@ -16,6 +16,8 @@ namespace PdfConverter
 {
     public partial class Form1 : Form
     {
+        private List<string> ConverterErrorFiles = new List<string>();
+        private List<string> MergerErrorFiles = new List<string>();
         public Form1()
         {
             InitializeComponent();
@@ -72,13 +74,41 @@ namespace PdfConverter
             System.Windows.Forms.Application.DoEvents();
             if (!ConvertFiles())
             {
-                MessageBox.Show("המרת הקבצים נכשלה");
+                if(ConverterErrorFiles.Count() > 0)
+                {
+                    string sf = string.Empty;
+                    ConverterErrorFiles.ForEach(ff =>
+                    {
+                        SimpleLog.Log("Failed to convert file : " + ff);
+                        sf = sf + ff + Environment.NewLine;
+                    });
+                    MessageBox.Show("ההמרה נכשלה" + Environment.NewLine + "מספר קבצים שנכשלו : " + ConverterErrorFiles.Count() + Environment.NewLine + "הקבצים שנכשלו הם : " + Environment.NewLine + sf);
+                }
+                else
+                {
+                    MessageBox.Show("המרת הקבצים נכשלה");
+                }
+               
                 return;
             }
 
             if (!MergeAndClean())
             {
-                MessageBox.Show("איחוד הקבצים נכשל");
+                if(MergerErrorFiles.Count() > 0)
+                {
+                    string sf = string.Empty;
+                    ConverterErrorFiles.ForEach(ff =>
+                    {
+                        SimpleLog.Log("Failed to merge file : " + ff);
+                        sf = sf + ff + Environment.NewLine;
+                    });
+                    MessageBox.Show("איחוד הקבצים נכשל" + Environment.NewLine + "מספר קבצים שנכשלו : " + ConverterErrorFiles.Count() + Environment.NewLine + "הקבצים שנכשלו הם : " + Environment.NewLine + sf);
+                }
+                else
+                {
+                    MessageBox.Show("איחוד הקבצים נכשל");
+                }
+                
                 return;
             }
             
@@ -91,6 +121,7 @@ namespace PdfConverter
         }
         private bool MergeAndClean()
         {
+            string currentFile = string.Empty;
             try
             {
                 string path = txtDir.Text;
@@ -119,6 +150,7 @@ namespace PdfConverter
 
                     var files = llfiles.ToArray();
                     var outputFile = Path.Combine(targetDirectory, dir.Name + ".pdf");
+                    currentFile = outputFile;
                     PdfDocumentBase doc = PdfDocument.MergeFiles(files);
                     doc.Save(outputFile, FileFormat.PDF);
                     txtDetails.Text += @"Deleting folder - " + dir.Name + Environment.NewLine;
@@ -133,6 +165,7 @@ namespace PdfConverter
             }
             catch (Exception ex)
             {
+                MergerErrorFiles.Add("Error trying to merge " + currentFile);
                 SimpleLog.Log(ex);
                 txtDetails.Text += Environment.NewLine;
                 txtDetails.Text += @"ERROR Merging files - " + ex.Message + Environment.NewLine;
@@ -227,13 +260,16 @@ namespace PdfConverter
                         {
                             PdfImage pdfimage = PdfImage.FromFile(file);
 
-                            PdfDocument doc = new PdfDocument { PageSettings = { Size = PdfPageSize.A4 } };
-                            //PdfUnitConvertor uinit = new PdfUnitConvertor();
-                            //SizeF pageSize = uinit.ConvertFromPixels(objImage.Size, PdfGraphicsUnit.Point);
-                            PdfPageBase page = doc.Pages.Add(objImage.Size, new PdfMargins(0f));
-                            page.Canvas.DrawImage(pdfimage, new PointF(0, 0), objImage.Size);
-                            doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
-                            doc.Close();
+                            using (PdfDocument doc = new PdfDocument { PageSettings = { Size = PdfPageSize.A4 } })
+                            {
+                                PdfPageBase page = doc.Pages.Add(objImage.Size, new PdfMargins(0f));
+                                page.Canvas.DrawImage(pdfimage, new PointF(0, 0), objImage.Size);
+                                doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                                doc.Close();
+                            }
+                                //PdfUnitConvertor uinit = new PdfUnitConvertor();
+                                //SizeF pageSize = uinit.ConvertFromPixels(objImage.Size, PdfGraphicsUnit.Point);
+                                
                         }
                         //Load a tiff image from system
 
@@ -275,24 +311,28 @@ namespace PdfConverter
                     }
                     else if (ext.ToLower() == ".html" || ext.ToLower() == ".htm")
                     {
-                        PdfDocument doc = new PdfDocument();
+                        using (PdfDocument doc = new PdfDocument())
+                        {
+                            PdfPageSettings setting = new PdfPageSettings();
 
-                        PdfPageSettings setting = new PdfPageSettings();
+                            setting.Size = new SizeF(1000, 1000);
+                            setting.Margins = new PdfMargins(20);
 
-                        setting.Size = new SizeF(1000, 1000);
-                        setting.Margins = new PdfMargins(20);
+                            PdfHtmlLayoutFormat htmlLayoutFormat = new PdfHtmlLayoutFormat();
+                            htmlLayoutFormat.IsWaiting = true;
 
-                        PdfHtmlLayoutFormat htmlLayoutFormat = new PdfHtmlLayoutFormat();
-                        htmlLayoutFormat.IsWaiting = true;
+                            //Thread thread = new Thread(() =>
+                            //{ doc.LoadFromFile(file, FileFormat.HTML); });
+                            //thread.SetApartmentState(ApartmentState.STA);
+                            //thread.Start();
+                            //thread.Join();
+                            doc.LoadFromFile(file, FileFormat.HTML);
+                            
+                            doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                            doc.Close();
+                        }
 
-                        Thread thread = new Thread(() =>
-                        { doc.LoadFromFile(file, FileFormat.HTML); });
-                        thread.SetApartmentState(ApartmentState.STA);
-                        thread.Start();
-                        thread.Join();
-                        //Save pdf file.
-                        doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
-                        doc.Close();
+                            
                     }
                     else if (ext.ToLower() == ".doc" || ext.ToLower() == ".docx")
                     {
@@ -307,6 +347,8 @@ namespace PdfConverter
                 catch (Exception ex)
                 {
                     isOK = false;
+                    ConverterErrorFiles.Add(file);
+                    SimpleLog.Log(@"ERROR Converting file - " + file + "----" + ex.Message);
                     SimpleLog.Log(ex);
                     txtDetails.Text += Environment.NewLine;
                     txtDetails.Text += @"ERROR Converting file - " + file + "----" + ex.Message + Environment.NewLine;
