@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
+
 namespace PdfConverter
 {
     public partial class Form1 : Form
@@ -311,28 +312,31 @@ namespace PdfConverter
                     }
                     else if (ext.ToLower() == ".html" || ext.ToLower() == ".htm")
                     {
-                        using (PdfDocument doc = new PdfDocument())
-                        {
-                            PdfPageSettings setting = new PdfPageSettings();
+                        Spire.Pdf.HtmlConverter.Qt.HtmlConverter.PluginPath = @"plugins";
+                        string outputFile = Path.Combine(Path.GetDirectoryName(file), fn + ".pdf");
+                        Spire.Pdf.HtmlConverter.Qt.HtmlConverter.Convert(file, outputFile,  true, 100 * 1000, new SizeF(1000, 1000), new Spire.Pdf.Graphics.PdfMargins(20));
+                        //using (PdfDocument doc = new PdfDocument())
+                        //{
+                        //    PdfPageSettings setting = new PdfPageSettings();
 
-                            setting.Size = new SizeF(1000, 1000);
-                            setting.Margins = new PdfMargins(20);
+                        //    setting.Size = new SizeF(1000, 1000);
+                        //    setting.Margins = new PdfMargins(20);
 
-                            PdfHtmlLayoutFormat htmlLayoutFormat = new PdfHtmlLayoutFormat();
-                            htmlLayoutFormat.IsWaiting = true;
+                        //    PdfHtmlLayoutFormat htmlLayoutFormat = new PdfHtmlLayoutFormat();
+                        //    htmlLayoutFormat.IsWaiting = true;
 
-                            //Thread thread = new Thread(() =>
-                            //{ doc.LoadFromFile(file, FileFormat.HTML); });
-                            //thread.SetApartmentState(ApartmentState.STA);
-                            //thread.Start();
-                            //thread.Join();
-                            doc.LoadFromFile(file, FileFormat.HTML);
-                            
-                            doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
-                            doc.Close();
-                        }
+                        //    //Thread thread = new Thread(() =>
+                        //    //{ doc.LoadFromFile(file, FileFormat.HTML); });
+                        //    //thread.SetApartmentState(ApartmentState.STA);
+                        //    //thread.Start();
+                        //    //thread.Join();
+                        //    doc.LoadFromFile(file, FileFormat.HTML);
 
-                            
+                        //    doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                        //    doc.Close();
+                        //}
+
+
                     }
                     else if (ext.ToLower() == ".doc" || ext.ToLower() == ".docx")
                     {
