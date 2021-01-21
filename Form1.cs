@@ -1,14 +1,16 @@
-﻿using Microsoft.Office.Interop.Word;
+﻿using IronPdf;
+using Microsoft.Office.Interop.Word;
+
 using SimpleLogger;
-using Spire.Pdf;
-using Spire.Pdf.Graphics;
-using Spire.Pdf.HtmlConverter;
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -19,6 +21,8 @@ namespace PdfConverter
     {
         private List<string> ConverterErrorFiles = new List<string>();
         private List<string> MergerErrorFiles = new List<string>();
+        WebBrowser myWebBrowser = new WebBrowser();
+        
         public Form1()
         {
             InitializeComponent();
@@ -95,7 +99,7 @@ namespace PdfConverter
 
             if (!MergeAndClean())
             {
-                if(MergerErrorFiles.Count() > 0)
+                if (MergerErrorFiles.Count() > 0)
                 {
                     string sf = string.Empty;
                     ConverterErrorFiles.ForEach(ff =>
@@ -109,10 +113,10 @@ namespace PdfConverter
                 {
                     MessageBox.Show("איחוד הקבצים נכשל");
                 }
-                
+
                 return;
             }
-            
+
 
             progressBar1.Value = 100;
             System.Windows.Forms.Application.DoEvents();
@@ -123,6 +127,7 @@ namespace PdfConverter
         private bool MergeAndClean()
         {
             string currentFile = string.Empty;
+            var pdfDocuments = new List<PdfDocument>();
             try
             {
                 string path = txtDir.Text;
@@ -146,20 +151,25 @@ namespace PdfConverter
                     var lFiles = Directory.GetFiles(dir.FullName, "*.pdf", SearchOption.TopDirectoryOnly);
                     foreach (var lfile in lFiles)
                     {
-                        llfiles.Add(lfile);
+                        pdfDocuments.Add(PdfDocument.FromFile(lfile));
+                        //  llfiles.Add(lfile);
                     }
 
-                    var files = llfiles.ToArray();
+                   // var files = llfiles.ToArray();
                     var outputFile = Path.Combine(targetDirectory, dir.Name + ".pdf");
                     currentFile = outputFile;
-                    PdfDocumentBase doc = PdfDocument.MergeFiles(files);
-                    doc.Save(outputFile, FileFormat.PDF);
+
+                    var mergedPdfDocument = PdfDocument.Merge(pdfDocuments);
+                    mergedPdfDocument.SaveAs(outputFile);
+                    //PdfDocumentBase doc = PdfDocument.MergeFiles(files);
+                    //doc.Save(outputFile, FileFormat.PDF);
                     txtDetails.Text += @"Deleting folder - " + dir.Name + Environment.NewLine;
                     txtDetails.SelectionStart = txtDetails.Text.Length;
                     txtDetails.ScrollToCaret();
                     System.Windows.Forms.Application.DoEvents();
                     dir.Delete(true);
-                    llfiles = new List<string>();
+                    //llfiles = new List<string>();
+                    pdfDocuments = new List<PdfDocument>();
                 }
 
                 return true;
@@ -178,6 +188,7 @@ namespace PdfConverter
             
 
         }
+
         private bool PrepareInviorment()
         {
             try
@@ -216,6 +227,7 @@ namespace PdfConverter
         }
         private bool ConvertFiles()
         {
+           // PrinterClass.SetDefaultPrinter("Microsoft Print to PDF");
             bool isOK = true;
             string path = txtDir.Text;
             
@@ -257,21 +269,22 @@ namespace PdfConverter
                     var fn = Path.GetFileNameWithoutExtension(file);
                     if (ext.ToLower() == ".jpg" || ext.ToLower() == ".jpeg")
                     {
-                        using (Image objImage = Image.FromFile(file))
-                        {
-                            PdfImage pdfimage = PdfImage.FromFile(file);
+                        ImageToPdfConverter.ImageToPdf(file).SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                        //using (Image objImage = Image.FromFile(file))
+                        //{
+                        //    PdfImage pdfimage = PdfImage.FromFile(file);
 
-                            using (PdfDocument doc = new PdfDocument { PageSettings = { Size = PdfPageSize.A4 } })
-                            {
-                                PdfPageBase page = doc.Pages.Add(objImage.Size, new PdfMargins(0f));
-                                page.Canvas.DrawImage(pdfimage, new PointF(0, 0), objImage.Size);
-                                doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
-                                doc.Close();
-                            }
-                                //PdfUnitConvertor uinit = new PdfUnitConvertor();
-                                //SizeF pageSize = uinit.ConvertFromPixels(objImage.Size, PdfGraphicsUnit.Point);
+                        //    using (PdfDocument doc = new PdfDocument { PageSettings = { Size = PdfPageSize.A4 } })
+                        //    {
+                        //        PdfPageBase page = doc.Pages.Add(objImage.Size, new PdfMargins(0f));
+                        //        page.Canvas.DrawImage(pdfimage, new PointF(0, 0), objImage.Size);
+                        //        doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                        //        doc.Close();
+                        //    }
+                        //        //PdfUnitConvertor uinit = new PdfUnitConvertor();
+                        //        //SizeF pageSize = uinit.ConvertFromPixels(objImage.Size, PdfGraphicsUnit.Point);
                                 
-                        }
+                        //}
                         //Load a tiff image from system
 
                         //doc.Close();
@@ -293,48 +306,112 @@ namespace PdfConverter
                     }
                     else if (ext.ToLower() == ".tiff" || ext.ToLower() == ".tif")
                     {
-                        using (PdfDocument doc = new PdfDocument())
-                        {
-                            doc.PageSettings.Size = PdfPageSize.A4;
-                            Image tiffImage = Image.FromFile(file);
-                            Image[] images = SplitTIFFImage(tiffImage);
+                        Image tiffImage = Image.FromFile(file);
+                        Image[] images = SplitTIFFImage(tiffImage);
+                        ImageToPdfConverter.ImageToPdf(images, ImageBehavior.CropPage).SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                        //using (PdfDocument doc = new PdfDocument())
+                        //{
+                        //    doc.PageSettings.Size = PdfPageSize.A4;
+                        //    Image tiffImage = Image.FromFile(file);
+                        //    Image[] images = SplitTIFFImage(tiffImage);
 
-                            for (int i = 0; i < images.Length; i++)
-                            {
-                                PdfImage pdfImg = PdfImage.FromImage(images[i]);
-                                PdfPageBase page = doc.Pages.Add(new SizeF(pdfImg.Width, pdfImg.Height));
-                                page.Canvas.DrawImage(pdfImg, new PointF(0, 0), new SizeF(pdfImg.Width, pdfImg.Height));
-                            }
-                            doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                        //    for (int i = 0; i < images.Length; i++)
+                        //    {
+                        //        PdfImage pdfImg = PdfImage.FromImage(images[i]);
+                        //        PdfPageBase page = doc.Pages.Add(new SizeF(pdfImg.Width, pdfImg.Height));
+                        //        page.Canvas.DrawImage(pdfImg, new PointF(0, 0), new SizeF(pdfImg.Width, pdfImg.Height));
+                        //    }
+                        //    doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
 
-                        }
+                            
+
+                        //}
 
                     }
                     else if (ext.ToLower() == ".html" || ext.ToLower() == ".htm")
                     {
-                        Spire.Pdf.HtmlConverter.Qt.HtmlConverter.PluginPath = @"plugins";
-                        string outputFile = Path.Combine(Path.GetDirectoryName(file), fn + ".pdf");
-                        Spire.Pdf.HtmlConverter.Qt.HtmlConverter.Convert(file, outputFile,  true, 100 * 1000, new SizeF(1000, 1000), new Spire.Pdf.Graphics.PdfMargins(20));
-                        //using (PdfDocument doc = new PdfDocument())
+                       
+                        myWebBrowser.DocumentCompleted += myWebBrowser_DocumentCompleted;
+                        myWebBrowser.DocumentText = System.IO.File.ReadAllText(file);
+                        //myWebBrowser.
+                       
+
+                        
+                        //PrintDocument doc = new PrintDocument()
                         //{
-                        //    PdfPageSettings setting = new PdfPageSettings();
+                        //    PrinterSettings = new PrinterSettings()
+                        //    {
 
-                        //    setting.Size = new SizeF(1000, 1000);
-                        //    setting.Margins = new PdfMargins(20);
+                        //        // set the printer to 'Microsoft Print to PDF'
+                        //        PrinterName = "Microsoft Print to PDF",
 
-                        //    PdfHtmlLayoutFormat htmlLayoutFormat = new PdfHtmlLayoutFormat();
-                        //    htmlLayoutFormat.IsWaiting = true;
+                        //        // tell the object this document will print to file
+                        //        PrintToFile = true,
 
-                        //    //Thread thread = new Thread(() =>
-                        //    //{ doc.LoadFromFile(file, FileFormat.HTML); });
-                        //    //thread.SetApartmentState(ApartmentState.STA);
-                        //    //thread.Start();
-                        //    //thread.Join();
-                        //    doc.LoadFromFile(file, FileFormat.HTML);
+                        //        // set the filename to whatever you like (full path)
+                        //        PrintFileName = Path.Combine(Path.GetDirectoryName(file), fn + ".pdf")
+                        //    }
+                        //};
 
-                        //    doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
-                        //    doc.Close();
+                        //doc.Print();
+                        ////Spire.Pdf.HtmlConverter.Qt.HtmlConverter.PluginPath = @"plugins";
+                        ////string outputFile = Path.Combine(Path.GetDirectoryName(file), fn + ".pdf");
+                        ////Spire.Pdf.HtmlConverter.Qt.HtmlConverter.Convert(file, outputFile, true, 120 * 1000, new SizeF(612, 792), new PdfMargins(0, 0));
+                        ////// Spire.Pdf.HtmlConverter.Qt.HtmlConverter.Convert(file, outputFile, true, 100 * 1000, new SizeF(1000, 1000), new Spire.Pdf.Graphics.PdfMargins(20));
+                        //try
+                        //{
+                        //    //Spire.Pdf.HtmlConverter.Qt.HtmlConverter.PluginPath = @"plugins";
+                        //    //string outputFile = Path.Combine(Path.GetDirectoryName(file), fn + ".pdf");
+                        //    //Spire.Pdf.HtmlConverter.Qt.HtmlConverter.Convert(file, outputFile, true, 120 * 1000, new SizeF(612, 792), new PdfMargins(0, 0));
+                        //    using (PdfDocument doc = new PdfDocument())
+                        //    {
+                        //        PdfPageSettings setting = new PdfPageSettings();
+
+                        //        //setting.Height = 700;
+                        //        //setting.Width = 2000;
+                        //        //setting.Orientation = PdfPageOrientation.Landscape;
+                        //        setting.Margins = new PdfMargins(50);
+                        //        setting.Size = PdfPageSize.A4;
+
+
+                        //        PdfHtmlLayoutFormat htmlLayoutFormat = new PdfHtmlLayoutFormat();
+                        //        htmlLayoutFormat.IsWaiting = true;
+                        //        htmlLayoutFormat.FitToPage = Clip.Both;
+
+
+                        //        var html = File.ReadAllText(file, Encoding.GetEncoding("Windows-1255"));
+
+                        //        doc.LoadFromHTML(html, true, setting, htmlLayoutFormat, true);
+                        //        //Thread thread = new Thread(() =>
+                        //        //{ doc.LoadFromHTML(html, true, setting, htmlLayoutFormat, true); });
+                        //        //thread.SetApartmentState(ApartmentState.STA);
+                        //        //thread.Start();
+                        //        //thread.Join();
+                        //        //doc.PageSettings = setting;
+
+                        //        //doc.LoadFromFile(file, FileFormat.HTML);
+                        //        //doc.PageScaling = PdfPrintPageScaling.ActualSize;
+                        //        // doc.PrintSettings.SelectSinglePageLayout(Spire.Pdf.Print.PdfSinglePageScalingMode.ActualSize);
+                        //        doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                        //        doc.Close();
+                        //    }
                         //}
+                        //catch(OutOfMemoryException e)
+                        //{
+                        //    Spire.Pdf.HtmlConverter.Qt.HtmlConverter.PluginPath = @"plugins";
+                        //    string outputFile = Path.Combine(Path.GetDirectoryName(file), fn + ".pdf");
+                        //    Spire.Pdf.HtmlConverter.Qt.HtmlConverter.Convert(file, outputFile, true, 120 * 1000, new SizeF(612, 792), new PdfMargins(0, 0));
+                        //}
+                        //catch (Exception ex)
+                        //{
+                        //    if(ex.Message.ToLower()== "out of memory.")
+                        //    {
+
+
+                        //    }
+                        //}
+
+
 
 
                     }
@@ -361,6 +438,48 @@ namespace PdfConverter
 
             }
             return isOK;
+        }
+        //private static void StartBrowser(string source)
+        //{
+        //    var th = new Thread(() =>
+        //    {
+        //        var webBrowser = new WebBrowser();
+        //        webBrowser.ScrollBarsEnabled = false;
+        //        webBrowser.IsWebBrowserContextMenuEnabled = true;
+        //        webBrowser.AllowNavigation = true;
+
+        //        webBrowser.DocumentCompleted += webBrowser_DocumentCompleted;
+        //        webBrowser.DocumentText = source;
+
+        //        Application.Run();
+        //    });
+        //    th.SetApartmentState(ApartmentState.STA);
+        //    th.Start();
+        //}
+        //static void webBrowser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        //{
+        //    var webBrowser = (WebBrowser)sender;
+        //    using (Bitmap bitmap =
+        //        new Bitmap(
+        //            webBrowser.Width,
+        //            webBrowser.Height))
+        //    {
+        //        webBrowser
+        //            .DrawToBitmap(
+        //            bitmap,
+        //            new System.Drawing
+        //                .Rectangle(0, 0, bitmap.Width, bitmap.Height));
+        //        bitmap.Save(@"filename.jpg",
+        //            System.Drawing.Imaging.ImageFormat.Jpeg);
+        //    }
+        //}
+        private void myWebBrowser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        {
+            myWebBrowser.Print();
+            //IHTMLDocument2 d2;
+            //d2 = (IHTMLDocument2)((WebBrowser)sender).Document.DomDocument;
+
+            //d2.execCommand("Print", false, null);
         }
         public static Image[] SplitTIFFImage(Image tiffImage)
         {
