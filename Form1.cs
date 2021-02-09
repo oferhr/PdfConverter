@@ -306,9 +306,13 @@ namespace PdfConverter
                     }
                     else if (ext.ToLower() == ".tiff" || ext.ToLower() == ".tif")
                     {
-                        Image tiffImage = Image.FromFile(file);
-                        Image[] images = SplitTIFFImage(tiffImage);
-                        ImageToPdfConverter.ImageToPdf(images, ImageBehavior.CropPage).SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                        //Image tiffImage = Image.FromFile(file);
+                        //Image[] images = SplitTIFFImage(tiffImage);
+                        //var converted = ImageToPdfConverter.ImageToPdf(images, ImageBehavior.CropPage);
+                        //converted.SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+
+                        var converted = IronPdf.ImageToPdfConverter.ImageToPdf(file);
+                        converted.SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
                         //using (PdfDocument doc = new PdfDocument())
                         //{
                         //    doc.PageSettings.Size = PdfPageSize.A4;
@@ -323,7 +327,7 @@ namespace PdfConverter
                         //    }
                         //    doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
 
-                            
+
 
                         //}
 
@@ -481,23 +485,23 @@ namespace PdfConverter
 
             //d2.execCommand("Print", false, null);
         }
-        public static Image[] SplitTIFFImage(Image tiffImage)
-        {
-            int frameCount = tiffImage.GetFrameCount(FrameDimension.Page);
-            Image[] images = new Image[frameCount];
-            Guid objGuid = tiffImage.FrameDimensionsList[0];
-            FrameDimension objDimension = new FrameDimension(objGuid);
-            for (int i = 0; i<frameCount; i++)
-            {
-                tiffImage.SelectActiveFrame(objDimension, i);
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    tiffImage.Save(ms, ImageFormat.Tiff);
-                    images[i] = Image.FromStream(ms);
-                }
-            }
-            return images;
-        }
+        //public static Image[] SplitTIFFImage(Image tiffImage)
+        //{
+        //    int frameCount = tiffImage.GetFrameCount(FrameDimension.Page);
+        //    Image[] images = new Image[frameCount];
+        //    Guid objGuid = tiffImage.FrameDimensionsList[0];
+        //    FrameDimension objDimension = new FrameDimension(objGuid);
+        //    for (int i = 0; i<frameCount; i++)
+        //    {
+        //        tiffImage.SelectActiveFrame(objDimension, i);
+        //        using (MemoryStream ms = new MemoryStream())
+        //        {
+        //            tiffImage.Save(ms, ImageFormat.Tiff);
+        //            images[i] = Image.FromStream(ms);
+        //        }
+        //    }
+        //    return images;
+        //}
 
         public static void CopyAll(DirectoryInfo source, DirectoryInfo target)
         {

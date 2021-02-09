@@ -37,8 +37,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="IronPdf, Version=2020.12.3.0, Culture=neutral, PublicKeyToken=94e1c31412563c75, processorArchitecture=MSIL">
-      <HintPath>packages\IronPdf.2020.12.3\lib\net45\IronPdf.dll</HintPath>
+    <Reference Include="IronPdf, Version=2021.1.29.0, Culture=neutral, PublicKeyToken=94e1c31412563c75, processorArchitecture=MSIL">
+      <HintPath>packages\IronPdf.2021.1.29\lib\net45\IronPdf.dll</HintPath>
     </Reference>
     <Reference Include="IronPdf.Assets.Rendering.Windows, Version=21.0.0.0, Culture=neutral, PublicKeyToken=94e1c31412563c75, processorArchitecture=MSIL">
       <HintPath>packages\IronPdf.Assets.Rendering.Windows.21.0.0\lib\net40\IronPdf.Assets.Rendering.Windows.dll</HintPath>
@@ -85,85 +85,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <None Include="packages.config" />
-    <None Include="plugins\resources\icudtl.dat" />
-    <None Include="plugins\resources\qtwebengine_devtools_resources.pak" />
-    <None Include="plugins\resources\qtwebengine_resources.pak" />
-    <None Include="plugins\resources\qtwebengine_resources_100p.pak" />
-    <None Include="plugins\resources\qtwebengine_resources_200p.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\am.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\ar.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\bg.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\bn.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\ca.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\cs.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\da.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\de.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\el.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\en-GB.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\en-US.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\es-419.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\es.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\et.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\fa.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\fi.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\fil.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\fr.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\gu.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\he.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\hi.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\hr.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\hu.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\id.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\it.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\ja.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\kn.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\ko.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\lt.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\lv.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\ml.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\mr.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\ms.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\nb.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\nl.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\pl.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\pt-BR.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\pt-PT.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\ro.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\ru.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\sk.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\sl.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\sr.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\sv.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\sw.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\ta.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\te.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\th.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\tr.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\uk.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\vi.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\zh-CN.pak" />
-    <None Include="plugins\translations\qtwebengine_locales\zh-TW.pak" />
-    <None Include="plugins\translations\qt_ar.qm" />
-    <None Include="plugins\translations\qt_bg.qm" />
-    <None Include="plugins\translations\qt_ca.qm" />
-    <None Include="plugins\translations\qt_cs.qm" />
-    <None Include="plugins\translations\qt_da.qm" />
-    <None Include="plugins\translations\qt_de.qm" />
-    <None Include="plugins\translations\qt_en.qm" />
-    <None Include="plugins\translations\qt_es.qm" />
-    <None Include="plugins\translations\qt_fi.qm" />
-    <None Include="plugins\translations\qt_fr.qm" />
-    <None Include="plugins\translations\qt_gd.qm" />
-    <None Include="plugins\translations\qt_he.qm" />
-    <None Include="plugins\translations\qt_hu.qm" />
-    <None Include="plugins\translations\qt_it.qm" />
-    <None Include="plugins\translations\qt_ja.qm" />
-    <None Include="plugins\translations\qt_ko.qm" />
-    <None Include="plugins\translations\qt_lv.qm" />
-    <None Include="plugins\translations\qt_pl.qm" />
-    <None Include="plugins\translations\qt_ru.qm" />
-    <None Include="plugins\translations\qt_sk.qm" />
-    <None Include="plugins\translations\qt_uk.qm" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -178,47 +99,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <Content Include="plugins\bearer\qgenericbearer.dll" />
-    <Content Include="plugins\d3dcompiler_47.dll" />
-    <Content Include="plugins\Html2Pdf.exe" />
-    <Content Include="plugins\HTMLConverter.dll" />
-    <Content Include="plugins\iconengines\qsvgicon.dll" />
-    <Content Include="plugins\imageformats\qgif.dll" />
-    <Content Include="plugins\imageformats\qicns.dll" />
-    <Content Include="plugins\imageformats\qico.dll" />
-    <Content Include="plugins\imageformats\qjpeg.dll" />
-    <Content Include="plugins\imageformats\qsvg.dll" />
-    <Content Include="plugins\imageformats\qtga.dll" />
-    <Content Include="plugins\imageformats\qtiff.dll" />
-    <Content Include="plugins\imageformats\qwbmp.dll" />
-    <Content Include="plugins\imageformats\qwebp.dll" />
-    <Content Include="plugins\libEGL.dll" />
-    <Content Include="plugins\libGLESV2.dll" />
-    <Content Include="plugins\opengl32sw.dll" />
-    <Content Include="plugins\platforms\qwindows.dll" />
-    <Content Include="plugins\position\qtposition_geoclue.dll" />
-    <Content Include="plugins\position\qtposition_positionpoll.dll" />
-    <Content Include="plugins\position\qtposition_serialnmea.dll" />
-    <Content Include="plugins\position\qtposition_winrt.dll" />
-    <Content Include="plugins\printsupport\windowsprintersupport.dll" />
-    <Content Include="plugins\Qt5Core.dll" />
-    <Content Include="plugins\Qt5Gui.dll" />
-    <Content Include="plugins\Qt5Network.dll" />
-    <Content Include="plugins\Qt5Positioning.dll" />
-    <Content Include="plugins\Qt5PrintSupport.dll" />
-    <Content Include="plugins\Qt5Qml.dll" />
-    <Content Include="plugins\Qt5Quick.dll" />
-    <Content Include="plugins\Qt5QuickWidgets.dll" />
-    <Content Include="plugins\Qt5SerialPort.dll" />
-    <Content Include="plugins\Qt5Svg.dll" />
-    <Content Include="plugins\Qt5WebChannel.dll" />
-    <Content Include="plugins\Qt5WebEngineCore.dll" />
-    <Content Include="plugins\Qt5WebEngineWidgets.dll" />
-    <Content Include="plugins\Qt5Widgets.dll" />
-    <Content Include="plugins\QtWebEngineProcess.exe" />
-    <Content Include="plugins\vcredist_x86.exe" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>
