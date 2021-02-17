@@ -334,13 +334,34 @@ namespace PdfConverter
                     }
                     else if (ext.ToLower() == ".html" || ext.ToLower() == ".htm")
                     {
-                       
-                        myWebBrowser.DocumentCompleted += myWebBrowser_DocumentCompleted;
-                        myWebBrowser.DocumentText = System.IO.File.ReadAllText(file);
-                        //myWebBrowser.
-                       
+                        using (var Renderer = new HtmlToPdf())
+                        {
+                            Renderer.PrintOptions.InputEncoding = Encoding.GetEncoding(1255);
+                            Renderer.PrintOptions.PrintHtmlBackgrounds = false;
+                            Renderer.PrintOptions.PaperSize = PdfPrintOptions.PdfPaperSize.A4;
+                            Renderer.PrintOptions.CssMediaType = PdfPrintOptions.PdfCssMediaType.Print;
+                            //Renderer.PrintOptions.EnableJavaScript = true;
+                            //Renderer.PrintOptions.ViewPortWidth = 1280;
+                            //Renderer.PrintOptions.RenderDelay = 500; //milliseconds
+                            Renderer.PrintOptions.MarginLeft = 10;
+                            Renderer.PrintOptions.MarginRight = 10;
+                            Renderer.PrintOptions.MarginTop = 10;
+                            Renderer.PrintOptions.MarginBottom = 10;
+                            Renderer.PrintOptions.Zoom = 120;
 
-                        
+                            using (var PDF = Renderer.RenderHTMLFileAsPdf(file))
+                            {
+                                var OutputPath = Path.Combine(Path.GetDirectoryName(file), fn + ".pdf");
+                                PDF.SaveAs(OutputPath);
+                            }
+
+                        }
+                        //myWebBrowser.DocumentCompleted += myWebBrowser_DocumentCompleted;
+                        //myWebBrowser.DocumentText = System.IO.File.ReadAllText(file);
+                        //myWebBrowser.
+
+
+
                         //PrintDocument doc = new PrintDocument()
                         //{
                         //    PrinterSettings = new PrinterSettings()
@@ -443,48 +464,8 @@ namespace PdfConverter
             }
             return isOK;
         }
-        //private static void StartBrowser(string source)
-        //{
-        //    var th = new Thread(() =>
-        //    {
-        //        var webBrowser = new WebBrowser();
-        //        webBrowser.ScrollBarsEnabled = false;
-        //        webBrowser.IsWebBrowserContextMenuEnabled = true;
-        //        webBrowser.AllowNavigation = true;
-
-        //        webBrowser.DocumentCompleted += webBrowser_DocumentCompleted;
-        //        webBrowser.DocumentText = source;
-
-        //        Application.Run();
-        //    });
-        //    th.SetApartmentState(ApartmentState.STA);
-        //    th.Start();
-        //}
-        //static void webBrowser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
-        //{
-        //    var webBrowser = (WebBrowser)sender;
-        //    using (Bitmap bitmap =
-        //        new Bitmap(
-        //            webBrowser.Width,
-        //            webBrowser.Height))
-        //    {
-        //        webBrowser
-        //            .DrawToBitmap(
-        //            bitmap,
-        //            new System.Drawing
-        //                .Rectangle(0, 0, bitmap.Width, bitmap.Height));
-        //        bitmap.Save(@"filename.jpg",
-        //            System.Drawing.Imaging.ImageFormat.Jpeg);
-        //    }
-        //}
-        private void myWebBrowser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
-        {
-            myWebBrowser.Print();
-            //IHTMLDocument2 d2;
-            //d2 = (IHTMLDocument2)((WebBrowser)sender).Document.DomDocument;
-
-            //d2.execCommand("Print", false, null);
-        }
+       
+       
         //public static Image[] SplitTIFFImage(Image tiffImage)
         //{
         //    int frameCount = tiffImage.GetFrameCount(FrameDimension.Page);
