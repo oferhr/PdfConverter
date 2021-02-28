@@ -62,6 +62,7 @@ namespace PdfConverter
                 MessageBox.Show("יש לבחור תיקייה");
                 return;
             }
+            btnStart.Enabled = false;
             SimpleLog.SetLogFile(".\\Log", "Log_");
             progressBar1.Visible = true;
             progressBar1.Value = 0;
@@ -121,7 +122,7 @@ namespace PdfConverter
             progressBar1.Value = 100;
             System.Windows.Forms.Application.DoEvents();
             MessageBox.Show("הפעולה הסתיימה בהצלחה");
-
+            btnStart.Enabled = true;
 
         }
         private bool MergeAndClean()
