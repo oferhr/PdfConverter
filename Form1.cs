@@ -1,8 +1,8 @@
 ﻿using IronPdf;
 using Microsoft.Office.Interop.Word;
-
 using SimpleLogger;
-
+using Spire.Pdf;
+using Spire.Pdf.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -128,7 +128,7 @@ namespace PdfConverter
         private bool MergeAndClean()
         {
             string currentFile = string.Empty;
-            var pdfDocuments = new List<PdfDocument>();
+            var pdfDocuments = new List<IronPdf.PdfDocument>();
             try
             {
                 string path = txtDir.Text;
@@ -152,7 +152,7 @@ namespace PdfConverter
                     var lFiles = Directory.GetFiles(dir.FullName, "*.pdf", SearchOption.TopDirectoryOnly);
                     foreach (var lfile in lFiles)
                     {
-                        pdfDocuments.Add(PdfDocument.FromFile(lfile));
+                        pdfDocuments.Add(IronPdf.PdfDocument.FromFile(lfile));
                         //  llfiles.Add(lfile);
                     }
 
@@ -160,7 +160,7 @@ namespace PdfConverter
                     var outputFile = Path.Combine(targetDirectory, dir.Name + ".pdf");
                     currentFile = outputFile;
 
-                    var mergedPdfDocument = PdfDocument.Merge(pdfDocuments);
+                    var mergedPdfDocument = IronPdf.PdfDocument.Merge(pdfDocuments);
                     mergedPdfDocument.SaveAs(outputFile);
                     //PdfDocumentBase doc = PdfDocument.MergeFiles(files);
                     //doc.Save(outputFile, FileFormat.PDF);
@@ -170,7 +170,7 @@ namespace PdfConverter
                     System.Windows.Forms.Application.DoEvents();
                     dir.Delete(true);
                     //llfiles = new List<string>();
-                    pdfDocuments = new List<PdfDocument>();
+                    pdfDocuments = new List<IronPdf.PdfDocument>();
                 }
 
                 return true;
@@ -270,22 +270,22 @@ namespace PdfConverter
                     var fn = Path.GetFileNameWithoutExtension(file);
                     if (ext.ToLower() == ".jpg" || ext.ToLower() == ".jpeg")
                     {
-                        ImageToPdfConverter.ImageToPdf(file).SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
-                        //using (Image objImage = Image.FromFile(file))
-                        //{
-                        //    PdfImage pdfimage = PdfImage.FromFile(file);
+                       // ImageToPdfConverter.ImageToPdf(file).SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                        using (Image objImage = Image.FromFile(file))
+                        {
+                            PdfImage pdfimage = PdfImage.FromFile(file);
 
-                        //    using (PdfDocument doc = new PdfDocument { PageSettings = { Size = PdfPageSize.A4 } })
-                        //    {
-                        //        PdfPageBase page = doc.Pages.Add(objImage.Size, new PdfMargins(0f));
-                        //        page.Canvas.DrawImage(pdfimage, new PointF(0, 0), objImage.Size);
-                        //        doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
-                        //        doc.Close();
-                        //    }
-                        //        //PdfUnitConvertor uinit = new PdfUnitConvertor();
-                        //        //SizeF pageSize = uinit.ConvertFromPixels(objImage.Size, PdfGraphicsUnit.Point);
-                                
-                        //}
+                            using (Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument { PageSettings = { Size = PdfPageSize.A4 } })
+                            {
+                                PdfPageBase page = doc.Pages.Add(objImage.Size, new PdfMargins(0f));
+                                page.Canvas.DrawImage(pdfimage, new PointF(0, 0), objImage.Size);
+                                doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                                doc.Close();
+                            }
+                            //PdfUnitConvertor uinit = new PdfUnitConvertor();
+                            //SizeF pageSize = uinit.ConvertFromPixels(objImage.Size, PdfGraphicsUnit.Point);
+
+                        }
                         //Load a tiff image from system
 
                         //doc.Close();
