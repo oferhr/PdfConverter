@@ -6,12 +6,9 @@ using Spire.Pdf.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 
 
@@ -339,8 +336,8 @@ namespace PdfConverter
                         {
                             Renderer.PrintOptions.InputEncoding = Encoding.GetEncoding(1255);
                             Renderer.PrintOptions.PrintHtmlBackgrounds = false;
-                            Renderer.PrintOptions.PaperSize = PdfPrintOptions.PdfPaperSize.A4;
-                            Renderer.PrintOptions.CssMediaType = PdfPrintOptions.PdfCssMediaType.Print;
+                            Renderer.PrintOptions.PaperSize = IronPdf.Rendering.PdfPaperSize.A4;
+                            Renderer.PrintOptions.CssMediaType = IronPdf.Rendering.PdfCssMediaType.Print;
                             //Renderer.PrintOptions.EnableJavaScript = true;
                             //Renderer.PrintOptions.ViewPortWidth = 1280;
                             //Renderer.PrintOptions.RenderDelay = 500; //milliseconds
