@@ -24,7 +24,13 @@ namespace PdfConverter
         public Form1()
         {
             InitializeComponent();
-            
+
+
+            //   IronPdf.Logging.Logger.EnableDebugging = true;
+           // IronPdf.Logging.Logger.
+            IronPdf.Logging.Logger.LogFilePath = "Default.log"; //May be set to a directory name or full file
+            IronPdf.Logging.Logger.LoggingMode = IronPdf.Logging.Logger.LoggingModes.All;
+
             var archivePath = Properties.Settings.Default.ArchivePath;
             if (!string.IsNullOrEmpty(archivePath))
             {
@@ -149,6 +155,7 @@ namespace PdfConverter
             }
             //string dPath = Path.Combine(path, "PDF");
             var dirInfo = new DirectoryInfo(path);
+            
             var lDir = dirInfo.GetDirectories("*", SearchOption.TopDirectoryOnly).ToList();
             var lallFiles = dirInfo.GetFiles("*.*", SearchOption.AllDirectories).ToList();
             var files = new List<string>();
@@ -160,6 +167,14 @@ namespace PdfConverter
                 files = new List<string>();
                 goodFiles = new List<string>();
                 badFiles = new List<string>();
+                var dest = Path.Combine(archiveDirectory, dir.Name);
+                if (!Directory.Exists(dest))
+                {
+                    Directory.CreateDirectory(dest);
+                }
+                var archiveDirInfo = new DirectoryInfo(dest);
+                CopyAll(dir, archiveDirInfo);
+
                 var lFiles = Directory.GetFiles(dir.FullName, "*.*", SearchOption.TopDirectoryOnly);
                 foreach (var lfile in lFiles)
                 {
@@ -231,9 +246,11 @@ namespace PdfConverter
                             //Image[] images = SplitTIFFImage(tiffImage);
                             //var converted = ImageToPdfConverter.ImageToPdf(images, ImageBehavior.CropPage);
                             //converted.SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
-
-                            var converted = IronPdf.ImageToPdfConverter.ImageToPdf(file);
-                            converted.SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                            using(var converted = IronPdf.ImageToPdfConverter.ImageToPdf(file))
+                            {
+                                converted.SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                            }
+                            
                             //using (PdfDocument doc = new PdfDocument())
                             //{
                             //    doc.PageSettings.Size = PdfPageSize.A4;
@@ -261,6 +278,10 @@ namespace PdfConverter
                                 Renderer.PrintOptions.PrintHtmlBackgrounds = false;
                                 Renderer.PrintOptions.PaperSize = PdfPrintOptions.PdfPaperSize.A4;
                                 Renderer.PrintOptions.CssMediaType = PdfPrintOptions.PdfCssMediaType.Print;
+
+                                // Renderer.PrintOptions.PaperSize = IronPdf.Rendering.PdfCssMediaType.
+                                // Renderer.PrintOptions.CssMediaType = IronPdf.Rendering.PdfCssMediaType.Print;
+
                                 //Renderer.PrintOptions.EnableJavaScript = true;
                                 //Renderer.PrintOptions.ViewPortWidth = 1280;
                                 //Renderer.PrintOptions.RenderDelay = 500; //milliseconds
@@ -470,8 +491,12 @@ namespace PdfConverter
                 }
 
                 outputFile = Path.Combine(targetDirectory, dir.Name + ".pdf");
-                var mergedPdfDocument = IronPdf.PdfDocument.Merge(pdfDocuments);
-                mergedPdfDocument.SaveAs(outputFile);
+                using (var mergedPdfDocument = IronPdf.PdfDocument.Merge(pdfDocuments))
+                {
+                    mergedPdfDocument.SaveAs(outputFile);
+                }
+                
+                
 
                
 
@@ -492,7 +517,7 @@ namespace PdfConverter
         {
             try
             {
-                txtDetails.Text += @"Archiving folder :" + dir.Name + Environment.NewLine;
+                txtDetails.Text += @"Preparing folder :" + dir.Name + Environment.NewLine;
                 txtDetails.SelectionStart = txtDetails.Text.Length;
                 txtDetails.ScrollToCaret();
                 System.Windows.Forms.Application.DoEvents();
@@ -502,15 +527,8 @@ namespace PdfConverter
                 {
                     Directory.CreateDirectory(innerDest);
                 }
-                var dest = Path.Combine(archiveDirectory, dir.Name);
-                if (!Directory.Exists(dest))
-                {
-                    Directory.CreateDirectory(dest);
-                }
                 foreach (var gFile in goodFiles)
                 {
-                    var destF = Path.Combine(dest, Path.GetFileName(gFile));
-                    File.Copy(gFile, destF);
                     var gFilePdf = Path.Combine(Path.GetDirectoryName(gFile), Path.GetFileNameWithoutExtension(gFile) + ".pdf");
                     if (DelAfterCopy)
                     {
