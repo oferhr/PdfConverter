@@ -6,14 +6,19 @@ using Spire.Pdf.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using Excel = Microsoft.Office.Interop.Excel;
 
 
 namespace PdfConverter
 {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public partial class Form1 : Form
     {
         //private List<string> ConverterErrorFiles = new List<string>();
@@ -26,7 +31,7 @@ namespace PdfConverter
             InitializeComponent();
 
 
-            //   IronPdf.Logging.Logger.EnableDebugging = true;
+            IronPdf.Logging.Logger.EnableDebugging = true;
            // IronPdf.Logging.Logger.
             IronPdf.Logging.Logger.LogFilePath = "Default.log"; //May be set to a directory name or full file
             IronPdf.Logging.Logger.LoggingMode = IronPdf.Logging.Logger.LoggingModes.All;
@@ -72,7 +77,7 @@ namespace PdfConverter
             progressBar1.Value = 0;
             System.Windows.Forms.Application.DoEvents();
 
-            
+            SimpleLog.Log(@"Start of operation - " + DateTime.Now.ToString());
             txtDetails.Text += @"Starting to convert files" + Environment.NewLine;
             txtDetails.SelectionStart = txtDetails.Text.Length;
             txtDetails.ScrollToCaret();
@@ -81,56 +86,9 @@ namespace PdfConverter
             var msg = ok ? "הפעולה הסתיימה בהצלחה" : "הפעולה נכשלה. אנא בדוק את התקיות ואת קובץ הלוג";
             progressBar1.Value = 100;
             System.Windows.Forms.Application.DoEvents();
+            SimpleLog.Log(@"End of operation - " + DateTime.Now.ToString());
             MessageBox.Show(msg);
-            //if (ConverterErrorFiles.Count() > 0)
-            //{
-            //    string sf = string.Empty;
-            //    ConverterErrorFiles.ForEach(ff =>
-            //    {
-            //        SimpleLog.Log("Failed to convert file : " + ff);
-            //        sf = sf + ff + Environment.NewLine;
-            //    });
-            //    MessageBox.Show("ההמרה נכשלה" + Environment.NewLine + "מספר קבצים שנכשלו : " + ConverterErrorFiles.Count() + Environment.NewLine + "הקבצים שנכשלו הם : " + Environment.NewLine + sf);
-            //}
-            //if (!ConvertFiles())
-            //{
-            //    if(ConverterErrorFiles.Count() > 0)
-            //    {
-            //        string sf = string.Empty;
-            //        ConverterErrorFiles.ForEach(ff =>
-            //        {
-            //            SimpleLog.Log("Failed to convert file : " + ff);
-            //            sf = sf + ff + Environment.NewLine;
-            //        });
-            //        MessageBox.Show("ההמרה נכשלה" + Environment.NewLine + "מספר קבצים שנכשלו : " + ConverterErrorFiles.Count() + Environment.NewLine + "הקבצים שנכשלו הם : " + Environment.NewLine + sf);
-            //    }
-            //    else
-            //    {
-            //        MessageBox.Show("המרת הקבצים נכשלה");
-            //    }
-
-            //    return;
-            //}
-
-            //if (!MergeAndClean())
-            //{
-            //    if (MergerErrorFiles.Count() > 0)
-            //    {
-            //        string sf = string.Empty;
-            //        ConverterErrorFiles.ForEach(ff =>
-            //        {
-            //            SimpleLog.Log("Failed to merge file : " + ff);
-            //            sf = sf + ff + Environment.NewLine;
-            //        });
-            //        MessageBox.Show("איחוד הקבצים נכשל" + Environment.NewLine + "מספר קבצים שנכשלו : " + ConverterErrorFiles.Count() + Environment.NewLine + "הקבצים שנכשלו הם : " + Environment.NewLine + sf);
-            //    }
-            //    else
-            //    {
-            //        MessageBox.Show("איחוד הקבצים נכשל");
-            //    }
-
-            //    return;
-            //}
+           
 
 
             
@@ -162,6 +120,7 @@ namespace PdfConverter
             var goodFiles = new List<string>();
             var badFiles = new List<string>();
             var Now = DateTime.Now.ToString("yyyyMMddHHmmss");
+            var counter = 0;
             foreach (var dir in lDir)
             {
                 files = new List<string>();
@@ -180,7 +139,7 @@ namespace PdfConverter
                 {
                     files.Add(lfile);
                 }
-                var counter = 0;
+                
                 convertOK = true;
                 foreach (var file in files)
                 {
@@ -190,7 +149,7 @@ namespace PdfConverter
                         var pct = Convert.ToDouble(Convert.ToDouble(counter) / Convert.ToDouble(lallFiles.Count())) * 100;
                         lblPb.Text = Path.GetFileName(file);
 
-                        var dVal = progressBar1.Value + pct;
+                        var dVal = pct;
                         var val = Convert.ToInt32(dVal);
                         if (val > 100)
                         {
@@ -242,15 +201,66 @@ namespace PdfConverter
                         }
                         else if (ext.ToLower() == ".tiff" || ext.ToLower() == ".tif")
                         {
+
+
                             //Image tiffImage = Image.FromFile(file);
+                            ////tiffImage.
                             //Image[] images = SplitTIFFImage(tiffImage);
-                            //var converted = ImageToPdfConverter.ImageToPdf(images, ImageBehavior.CropPage);
-                            //converted.SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
-                            using(var converted = IronPdf.ImageToPdfConverter.ImageToPdf(file))
+                            ////var converted = ImageToPdfConverter.ImageToPdf(images, ImageBehavior.CropPage);
+                            ////converted.SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                            //List<AnyBitmap> gifBitmaps = new List<AnyBitmap>();
+                            //Stream fileStrim = null;
+                            //for (int i = 0; i < images.Length; i++)
+                            //{
+                            //    AnyBitmap img = new AnyBitmap(images[i]);
+                            //    img.ExportStream(fileStrim, AnyBitmap.ImageFormat.Jpeg, 100);
+                            //    gifBitmaps.Add(img);
+                            //}
+                            //AnyBitmap bitmap = new AnyBitmap(file);
+                            //bitmap.ExportFile("losslogo.jpg", AnyBitmap.ImageFormat.Jpeg, 100);
+                            //AnyBitmap multiFrameTiff = AnyBitmap.CreateMultiFrameTiff(tiffBitmaps);
+                            //multiFrameTiff.SaveAs("multiTiffwcrops.tiff");
+                            //AnyBitmap bitmap = new AnyBitmap(file);
+
+                            //   AnyBitmap multiFrameGif = AnyBitmap.CreateMultiFrameGif(ConvertTiffToJpeg(file));
+                            var paths = ConvertTiffToJpeg(file);
+                            using (var converted = ImageToPdfConverter.ImageToPdf(paths, IronPdf.Imaging.ImageBehavior.FitToPageAndMaintainAspectRatio))
                             {
-                                converted.SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                               // converted.CompressImages(10);
+                                 converted.SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
                             }
-                            
+
+
+                            //FileInfo fi = new FileInfo(file);
+                            //var size = fi.Length;
+                            //if (size > 5000000)
+                            //{
+                            //    //var paths = ConvertTiffToJpeg(file);
+                            //    //using (var converted = ImageToPdfConverter.ImageToPdf(paths, IronPdf.Imaging.ImageBehavior.FitToPageAndMaintainAspectRatio))
+                            //    //{
+                            //    //    converted.CompressImages(10);
+                            //    //    converted.SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                            //    //}
+                            //}
+                            //else
+                            //{
+                            //    using (var converted = ImageToPdfConverter.ImageToPdf(file, IronPdf.Imaging.ImageBehavior.FitToPageAndMaintainAspectRatio))
+                            //    {
+                            //        // converted.CompressImages(10);
+                            //        converted.SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                            //    }
+                            //}
+                            //using (var converted = ImageToPdfConverter.ImageToPdf(file, IronPdf.Imaging.ImageBehavior.FitToPageAndMaintainAspectRatio))
+                            //{
+                            //    converted.CompressImages(10);
+                            //    converted.SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                            //}
+                            // var paths = ConvertTiffToJpeg(file);
+
+
+
+
+
                             //using (PdfDocument doc = new PdfDocument())
                             //{
                             //    doc.PageSettings.Size = PdfPageSize.A4;
@@ -276,11 +286,11 @@ namespace PdfConverter
                             {
                                 Renderer.PrintOptions.InputEncoding = Encoding.GetEncoding(1255);
                                 Renderer.PrintOptions.PrintHtmlBackgrounds = false;
-                                Renderer.PrintOptions.PaperSize = PdfPrintOptions.PdfPaperSize.A4;
-                                Renderer.PrintOptions.CssMediaType = PdfPrintOptions.PdfCssMediaType.Print;
+                                //Renderer.PrintOptions.PaperSize = PdfPrintOptions.PdfPaperSize.A4;
+                                //Renderer.PrintOptions.CssMediaType = PdfPrintOptions.PdfCssMediaType.Print;
 
-                                // Renderer.PrintOptions.PaperSize = IronPdf.Rendering.PdfCssMediaType.
-                                // Renderer.PrintOptions.CssMediaType = IronPdf.Rendering.PdfCssMediaType.Print;
+                                Renderer.PrintOptions.PaperSize = IronPdf.Rendering.PdfPaperSize.A4;
+                                Renderer.PrintOptions.CssMediaType = IronPdf.Rendering.PdfCssMediaType.Print;
 
                                 //Renderer.PrintOptions.EnableJavaScript = true;
                                 //Renderer.PrintOptions.ViewPortWidth = 1280;
@@ -291,7 +301,7 @@ namespace PdfConverter
                                 Renderer.PrintOptions.MarginBottom = 10;
                                 Renderer.PrintOptions.Zoom = 120;
 
-                                using (var PDF = Renderer.RenderHTMLFileAsPdf(file))
+                                using (var PDF = Renderer.RenderHtmlAsPdf(file))
                                 {
                                     var OutputPath = Path.Combine(Path.GetDirectoryName(file), fn + ".pdf");
                                     PDF.SaveAs(OutputPath);
@@ -402,9 +412,18 @@ namespace PdfConverter
                         //ConverterErrorFiles.Add(file);
                         SimpleLog.Log(@"ERROR Converting file - " + file + "----" + ex.Message);
                         SimpleLog.Log(ex);
+                        
                         txtDetails.Text += Environment.NewLine;
                         txtDetails.Text += @"ERROR Converting file - " + file + "----" + ex.Message + Environment.NewLine;
                         txtDetails.Text += Environment.NewLine;
+                        try
+                        {
+                            Directory.Delete(dir.FullName);
+                            Directory.CreateDirectory(dir.FullName);
+                            CopyAll(archiveDirInfo, dir);
+                        }
+                        catch { }
+
                     }
 
                 }
@@ -456,9 +475,8 @@ namespace PdfConverter
 
             // return isOK;
         }
-       private bool MergeSingleDir(DirectoryInfo dir, string Now, bool convertedOK)
+        private bool MergeSingleDir(DirectoryInfo dir, string Now, bool convertedOK)
         {
-            string outputFile = string.Empty;
             var pdfDocuments = new List<IronPdf.PdfDocument>();
             try
             {
@@ -485,12 +503,25 @@ namespace PdfConverter
                 
 
                 var lFiles = Directory.GetFiles(dir.FullName, "*.pdf", SearchOption.TopDirectoryOnly);
-                foreach (var lfile in lFiles)
+                string lfileName = string.Empty;
+                try
                 {
-                    pdfDocuments.Add(IronPdf.PdfDocument.FromFile(lfile));
+                    foreach (var lfile in lFiles)
+                    {
+                        lfileName = lfile;
+                        pdfDocuments.Add(IronPdf.PdfDocument.FromFile(lfile));
+                    }
+                }
+                catch(IronPdf.Exceptions.IronPdfNativeException)
+                {
+                    SimpleLog.Log("PDF FILE IS CORRUPT - " + lfileName);
+                }
+                catch (Exception)
+                {
+                    SimpleLog.Log("PDF FILE IS CORRUPT - " + lfileName);
                 }
 
-                outputFile = Path.Combine(targetDirectory, dir.Name + ".pdf");
+                string outputFile = Path.Combine(targetDirectory, dir.Name + ".pdf");
                 using (var mergedPdfDocument = IronPdf.PdfDocument.Merge(pdfDocuments))
                 {
                     mergedPdfDocument.SaveAs(outputFile);
@@ -560,6 +591,76 @@ namespace PdfConverter
                 return false;
             }
         }
+
+        public string[] ConvertTiffToJpeg(string fileName)
+        {
+            var qualityDecimal = txtQuality.Value;
+            if (qualityDecimal < 0) { qualityDecimal = 0; } else if (qualityDecimal > 100) { qualityDecimal = 100; }
+
+            ImageCodecInfo jpgEncoder = GetEncoder(ImageFormat.Jpeg);
+            System.Drawing.Imaging.Encoder qualityEncoder = System.Drawing.Imaging.Encoder.Quality;
+            EncoderParameters qualityEncoderParameters = new EncoderParameters(1);
+            var quality = Convert.ToInt64(qualityDecimal);
+            
+            EncoderParameter qualityEncoderParameter = new EncoderParameter(qualityEncoder, quality);
+            qualityEncoderParameters.Param[0] = qualityEncoderParameter;
+
+            using (Image imageFile = Image.FromFile(fileName))
+            {
+                FrameDimension frameDimensions = new FrameDimension(imageFile.FrameDimensionsList[0]);
+                int frameNum = imageFile.GetFrameCount(frameDimensions);
+                string[] jpegPaths = new string[frameNum];
+                
+                for (int frame = 0; frame < frameNum; frame++)
+                {
+                    imageFile.SelectActiveFrame(frameDimensions, frame);
+                    
+                    //Byte[] bytes;
+                    //using (var ms = new MemoryStream())
+                    //{
+                    //    imageFile.Save(ms, imageFile.RawFormat, new EncoderParameters() { Param=EncoderParameters.});
+                    //    bytes =  ms.ToArray();
+                    //}
+
+                    //var path = String.Format("{0}\\{1}_{2}.jpg",
+                    //        Path.GetDirectoryName(fileName),
+                    //        Path.GetFileNameWithoutExtension(fileName),
+                    //        frame);
+
+
+                    //AnyBitmap bitmp = new AnyBitmap(bytes);
+                    //bitmp.ExportFile(path, AnyBitmap.ImageFormat.Jpeg, 10);
+                    //jpegPaths[frame] = path;
+
+
+                    using (Bitmap bmp = new Bitmap(imageFile))
+                    {
+                        jpegPaths[frame] = String.Format("{0}\\{1}_{2}.jpg",
+                            Path.GetDirectoryName(fileName),
+                            Path.GetFileNameWithoutExtension(fileName),
+                            frame);
+                        bmp.Save(jpegPaths[frame], jpgEncoder, qualityEncoderParameters);
+                    }
+                }
+
+                return jpegPaths;
+            }
+        }
+        
+        private ImageCodecInfo GetEncoder(ImageFormat format)
+        {
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
+
+            foreach (ImageCodecInfo codec in codecs)
+            {
+                if (codec.FormatID == format.Guid)
+                {
+                    return codec;
+                }
+            }
+
+            return null;
+        }
         //private void MergeFiles(List<IronPdf.PdfDocument> pdfDocuments)
         //{
 
@@ -570,13 +671,14 @@ namespace PdfConverter
         //    Image[] images = new Image[frameCount];
         //    Guid objGuid = tiffImage.FrameDimensionsList[0];
         //    FrameDimension objDimension = new FrameDimension(objGuid);
-        //    for (int i = 0; i<frameCount; i++)
+        //    for (int i = 0; i < frameCount; i++)
         //    {
         //        tiffImage.SelectActiveFrame(objDimension, i);
         //        using (MemoryStream ms = new MemoryStream())
         //        {
         //            tiffImage.Save(ms, ImageFormat.Tiff);
         //            images[i] = Image.FromStream(ms);
+        //            //imagesMs[i] = ms;
         //        }
         //    }
         //    return images;
@@ -620,6 +722,112 @@ namespace PdfConverter
                 }
             }
         }
+
+        private void btnDel_Click(object sender, EventArgs e)
+        {
+            var xlApp = new Excel.Application();
+            Excel.Workbook xlWorkbook = null;
+            Excel._Worksheet xlWorksheet = null;
+            Excel.Range xlRange = null;
+            var excelPath = System.Configuration.ConfigurationManager.AppSettings["ExcelForDelete"];
+            if (string.IsNullOrEmpty(excelPath))
+            {
+                MessageBox.Show("נתיב לקובץ אקסל לא קיים");
+                return;
+            }
+            string path = txtDir.Text;
+            var dirInfo = new DirectoryInfo(path);
+            var lallFiles = dirInfo.GetFiles("*.*", SearchOption.AllDirectories).ToList();
+            var lst = new List<string>();
+            try
+            {
+                txtDetails.Text += "Open Excel File" + Environment.NewLine;
+                txtDetails.SelectionStart = txtDetails.Text.Length;
+                txtDetails.ScrollToCaret();
+                System.Windows.Forms.Application.DoEvents();
+                xlWorkbook = xlApp.Workbooks.Open(excelPath);
+                xlApp.Visible = false;
+                xlWorksheet = (Excel._Worksheet)xlWorkbook.Sheets[1];
+                var lastRow = xlWorksheet.Cells.SpecialCells(Excel.XlCellType.xlCellTypeLastCell, Type.Missing).Row;
+                for (int i = 2; i <= lastRow; i++)
+                {
+                    var gid = xlWorksheet.Range["A" + i, "A" + i].Value2.ToString();
+                    lst.Add(gid);
+                }
+            }
+            catch(Exception ex)
+            {
+                SimpleLogger.SimpleLog.Log(ex);
+                MessageBox.Show("נכשל בקריאת נתונים מאקסל");
+                return;
+            }
+            finally
+            {
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
+                //rule of thumb for releasing com objects:
+                //  never use two dots, all COM objects must be referenced and released individually
+                //  ex: [somthing].[something].[something] is bad
+
+                //release com objects to fully kill excel process from running in the background
+                if (xlRange != null)
+                    Marshal.ReleaseComObject(xlRange);
+                if (xlWorksheet != null)
+                    Marshal.ReleaseComObject(xlWorksheet);
+
+                //close and release
+                if (xlWorksheet != null)
+                {
+                    xlWorkbook.Close();
+                    Marshal.ReleaseComObject(xlWorkbook);
+                }
+
+                if (xlApp != null)
+                {
+                    //quit and release
+                    xlApp.Quit();
+                    Marshal.ReleaseComObject(xlApp);
+                }
+            }
+            string fileName = string.Empty;
+            try
+            {
+                txtDetails.Text += "Found " + lallFiles.Count() + " files to parse" + Environment.NewLine;
+                txtDetails.SelectionStart = txtDetails.Text.Length;
+                txtDetails.ScrollToCaret();
+                System.Windows.Forms.Application.DoEvents();
+                foreach (var file in lallFiles)
+                {
+                    fileName = Path.GetFileNameWithoutExtension(file.FullName);
+                    foreach (var phrase in lst)
+                    {
+
+                        if (fileName.StartsWith(phrase))
+                        {
+                            txtDetails.Text += @"Deleting file : " + fileName + Environment.NewLine;
+                            txtDetails.SelectionStart = txtDetails.Text.Length;
+                            txtDetails.ScrollToCaret();
+                            System.Windows.Forms.Application.DoEvents();
+                            File.Delete(file.FullName);
+                        }
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                SimpleLogger.SimpleLog.Log(ex);
+                txtDetails.Text += @"Failed to delete file : " + fileName + Environment.NewLine;
+                txtDetails.SelectionStart = txtDetails.Text.Length;
+                txtDetails.ScrollToCaret();
+                System.Windows.Forms.Application.DoEvents();
+            }
+
+            MessageBox.Show("הקבצים נמחקו בהצלחה");
+
+        }
+
+        
         //private bool PrepareInviorment()
         //{
         //    try
