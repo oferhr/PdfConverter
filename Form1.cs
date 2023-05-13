@@ -224,7 +224,7 @@ namespace PdfConverter
 
                             //   AnyBitmap multiFrameGif = AnyBitmap.CreateMultiFrameGif(ConvertTiffToJpeg(file));
                             var paths = ConvertTiffToJpeg(file);
-                            using (var converted = ImageToPdfConverter.ImageToPdf(paths, IronPdf.Imaging.ImageBehavior.FitToPageAndMaintainAspectRatio))
+                            using (var converted = ImageToPdfConverter.ImageToPdf(paths, IronPdf.Imaging.ImageBehavior.FitToPage))
                             {
                                // converted.CompressImages(10);
                                  converted.SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
@@ -282,31 +282,29 @@ namespace PdfConverter
                         }
                         else if (ext.ToLower() == ".html" || ext.ToLower() == ".htm")
                         {
-                            using (var Renderer = new HtmlToPdf())
+                            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+                            var Renderer = new ChromePdfRenderer();
+                            Renderer.RenderingOptions.InputEncoding = Encoding.GetEncoding(1255);
+                            Renderer.RenderingOptions.PrintHtmlBackgrounds = false;
+                            //Renderer.PrintOptions.PaperSize = PdfPrintOptions.PdfPaperSize.A4;
+                            //Renderer.PrintOptions.CssMediaType = PdfPrintOptions.PdfCssMediaType.Print;
+
+                            Renderer.RenderingOptions.PaperSize = IronPdf.Rendering.PdfPaperSize.A4;
+                            Renderer.RenderingOptions.CssMediaType = IronPdf.Rendering.PdfCssMediaType.Print;
+
+                            //Renderer.PrintOptions.EnableJavaScript = true;
+                            //Renderer.PrintOptions.ViewPortWidth = 1280;
+                            //Renderer.PrintOptions.RenderDelay = 500; //milliseconds
+                            Renderer.RenderingOptions.MarginLeft = 10;
+                            Renderer.RenderingOptions.MarginRight = 10;
+                            Renderer.RenderingOptions.MarginTop = 10;
+                            Renderer.RenderingOptions.MarginBottom = 10;
+                            Renderer.RenderingOptions.Zoom = 100;
+
+                            using (var PDF = Renderer.RenderHtmlFileAsPdf(file))
                             {
-                                Renderer.PrintOptions.InputEncoding = Encoding.GetEncoding(1255);
-                                Renderer.PrintOptions.PrintHtmlBackgrounds = false;
-                                //Renderer.PrintOptions.PaperSize = PdfPrintOptions.PdfPaperSize.A4;
-                                //Renderer.PrintOptions.CssMediaType = PdfPrintOptions.PdfCssMediaType.Print;
-
-                                Renderer.PrintOptions.PaperSize = IronPdf.Rendering.PdfPaperSize.A4;
-                                Renderer.PrintOptions.CssMediaType = IronPdf.Rendering.PdfCssMediaType.Print;
-
-                                //Renderer.PrintOptions.EnableJavaScript = true;
-                                //Renderer.PrintOptions.ViewPortWidth = 1280;
-                                //Renderer.PrintOptions.RenderDelay = 500; //milliseconds
-                                Renderer.PrintOptions.MarginLeft = 10;
-                                Renderer.PrintOptions.MarginRight = 10;
-                                Renderer.PrintOptions.MarginTop = 10;
-                                Renderer.PrintOptions.MarginBottom = 10;
-                                Renderer.PrintOptions.Zoom = 120;
-
-                                using (var PDF = Renderer.RenderHtmlAsPdf(file))
-                                {
-                                    var OutputPath = Path.Combine(Path.GetDirectoryName(file), fn + ".pdf");
-                                    PDF.SaveAs(OutputPath);
-                                }
-
+                                var OutputPath = Path.Combine(Path.GetDirectoryName(file), fn + ".pdf");
+                                PDF.SaveAs(OutputPath);
                             }
                             //myWebBrowser.DocumentCompleted += myWebBrowser_DocumentCompleted;
                             //myWebBrowser.DocumentText = System.IO.File.ReadAllText(file);
@@ -607,14 +605,22 @@ namespace PdfConverter
 
             using (Image imageFile = Image.FromFile(fileName))
             {
+                int frameNum = imageFile.GetFrameCount(FrameDimension.Page);
                 FrameDimension frameDimensions = new FrameDimension(imageFile.FrameDimensionsList[0]);
-                int frameNum = imageFile.GetFrameCount(frameDimensions);
+                //int frameNum = imageFile.GetFrameCount(frameDimensions);
                 string[] jpegPaths = new string[frameNum];
                 
                 for (int frame = 0; frame < frameNum; frame++)
                 {
                     imageFile.SelectActiveFrame(frameDimensions, frame);
+
                     
+                    //    Image[] images = new Image[frameCount];
+                    //    Guid objGuid = tiffImage.FrameDimensionsList[0];
+                    //    FrameDimension objDimension = new FrameDimension(objGuid);
+                    //    for (int i = 0; i < frameCount; i++)
+                    //    {
+                    //        tiffImage.SelectActiveFrame(objDimension, i);
                     //Byte[] bytes;
                     //using (var ms = new MemoryStream())
                     //{
