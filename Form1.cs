@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -25,14 +26,14 @@ namespace PdfConverter
         //private List<DirectoryInfo> GoodDirs = new List<DirectoryInfo>();
         //private List<string> MergerErrorFiles = new List<string>();
         WebBrowser myWebBrowser = new WebBrowser();
-        
+
         public Form1()
         {
             InitializeComponent();
 
 
             IronPdf.Logging.Logger.EnableDebugging = true;
-           // IronPdf.Logging.Logger.
+            // IronPdf.Logging.Logger.
             IronPdf.Logging.Logger.LogFilePath = "Default.log"; //May be set to a directory name or full file
             IronPdf.Logging.Logger.LoggingMode = IronPdf.Logging.Logger.LoggingModes.All;
 
@@ -88,20 +89,20 @@ namespace PdfConverter
             System.Windows.Forms.Application.DoEvents();
             SimpleLog.Log(@"End of operation - " + DateTime.Now.ToString());
             MessageBox.Show(msg);
-           
 
 
-            
-            
+
+
+
             btnStart.Enabled = true;
 
         }
-        
 
-       
+
+
         private bool ConvertFiles()
         {
-           // PrinterClass.SetDefaultPrinter("Microsoft Print to PDF");
+            // PrinterClass.SetDefaultPrinter("Microsoft Print to PDF");
             bool convertOK = true;
             bool processOK = true;
             string path = txtDir.Text;
@@ -113,7 +114,7 @@ namespace PdfConverter
             }
             //string dPath = Path.Combine(path, "PDF");
             var dirInfo = new DirectoryInfo(path);
-            
+
             var lDir = dirInfo.GetDirectories("*", SearchOption.TopDirectoryOnly).ToList();
             var lallFiles = dirInfo.GetFiles("*.*", SearchOption.AllDirectories).ToList();
             var files = new List<string>();
@@ -126,12 +127,12 @@ namespace PdfConverter
                 files = new List<string>();
                 goodFiles = new List<string>();
                 badFiles = new List<string>();
-                var dest = Path.Combine(archiveDirectory, dir.Name);
-                if (!Directory.Exists(dest))
+                var archiveDir = Path.Combine(archiveDirectory, dir.Name);
+                if (!Directory.Exists(archiveDir))
                 {
-                    Directory.CreateDirectory(dest);
+                    Directory.CreateDirectory(archiveDir);
                 }
-                var archiveDirInfo = new DirectoryInfo(dest);
+                var archiveDirInfo = new DirectoryInfo(archiveDir);
                 CopyAll(dir, archiveDirInfo);
 
                 var lFiles = Directory.GetFiles(dir.FullName, "*.*", SearchOption.TopDirectoryOnly);
@@ -139,7 +140,7 @@ namespace PdfConverter
                 {
                     files.Add(lfile);
                 }
-                
+
                 convertOK = true;
                 foreach (var file in files)
                 {
@@ -223,11 +224,11 @@ namespace PdfConverter
                             //AnyBitmap bitmap = new AnyBitmap(file);
 
                             //   AnyBitmap multiFrameGif = AnyBitmap.CreateMultiFrameGif(ConvertTiffToJpeg(file));
-                            var paths = ConvertTiffToJpeg(file);
-                            using (var converted = ImageToPdfConverter.ImageToPdf(paths, IronPdf.Imaging.ImageBehavior.FitToPage))
+                            //var paths = ConvertTiffToJpeg(file);
+                            using (var converted = ImageToPdfConverter.ImageToPdf(file))
                             {
-                               // converted.CompressImages(10);
-                                 converted.SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
+                                //converted.CompressImages(10);
+                                converted.SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
                             }
 
 
@@ -261,7 +262,7 @@ namespace PdfConverter
 
 
 
-                            //using (PdfDocument doc = new PdfDocument())
+                            //using (Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument())
                             //{
                             //    doc.PageSettings.Size = PdfPageSize.A4;
                             //    Image tiffImage = Image.FromFile(file);
@@ -399,9 +400,9 @@ namespace PdfConverter
                             wordDocument.Close();
                             appWord.Quit();
                         }
-                    
+
                         goodFiles.Add(file);
-                        
+
                     }
                     catch (Exception ex)
                     {
@@ -410,26 +411,30 @@ namespace PdfConverter
                         //ConverterErrorFiles.Add(file);
                         SimpleLog.Log(@"ERROR Converting file - " + file + "----" + ex.Message);
                         SimpleLog.Log(ex);
-                        
+
                         txtDetails.Text += Environment.NewLine;
                         txtDetails.Text += @"ERROR Converting file - " + file + "----" + ex.Message + Environment.NewLine;
                         txtDetails.Text += Environment.NewLine;
                         try
                         {
+                            
+                            string newDirectoryName = dir.Name + "_Error"; 
+                            string newDirectoryPath = Path.Combine(dir.Parent.FullName, newDirectoryName);
+
+                            DirectoryInfo newDirectory = Directory.CreateDirectory(newDirectoryPath);
                             Directory.Delete(dir.FullName);
-                            Directory.CreateDirectory(dir.FullName);
-                            CopyAll(archiveDirInfo, dir);
+                            CopyAll(archiveDirInfo, newDirectory);
                         }
                         catch { }
 
                     }
 
                 }
-                if(goodFiles.Count > 0)
+                if (goodFiles.Count > 0)
                 {
                     var mergedOK = MergeSingleDir(dir, Now, convertOK);
-                    var archivedOK = ArchiveDirectory(goodFiles, dir, mergedOK, archiveDirectory);
-                    if(convertOK && mergedOK && archivedOK)
+                    var archivedOK = ArchiveDirectory(goodFiles, dir, mergedOK);
+                    if (convertOK && mergedOK && archivedOK)
                     {
                         Directory.Delete(dir.FullName, true);
                     }
@@ -442,7 +447,7 @@ namespace PdfConverter
                 {
                     processOK = false;
                 }
-                
+
                 //if(isOK)
                 //{
                 //    try
@@ -465,7 +470,7 @@ namespace PdfConverter
                 //        System.Windows.Forms.Application.DoEvents();
                 //    }
                 //}
-                
+
             }
 
             return processOK;
@@ -491,14 +496,14 @@ namespace PdfConverter
                     {
                         Directory.CreateDirectory(targetDirectory);
                     }
-                    
+
                 }
                 else
                 {
                     targetDirectory = dir.FullName;
                 }
 
-                
+
 
                 var lFiles = Directory.GetFiles(dir.FullName, "*.pdf", SearchOption.TopDirectoryOnly);
                 string lfileName = string.Empty;
@@ -510,7 +515,7 @@ namespace PdfConverter
                         pdfDocuments.Add(IronPdf.PdfDocument.FromFile(lfile));
                     }
                 }
-                catch(IronPdf.Exceptions.IronPdfNativeException)
+                catch (IronPdf.Exceptions.IronPdfNativeException)
                 {
                     SimpleLog.Log("PDF FILE IS CORRUPT - " + lfileName);
                 }
@@ -524,10 +529,10 @@ namespace PdfConverter
                 {
                     mergedPdfDocument.SaveAs(outputFile);
                 }
-                
-                
 
-               
+
+
+
 
                 return true;
             }
@@ -542,7 +547,7 @@ namespace PdfConverter
                 return false;
             }
         }
-        private bool ArchiveDirectory(List<string> goodFiles, DirectoryInfo dir, bool DelAfterCopy, string archiveDirectory)
+        private bool ArchiveDirectory(List<string> goodFiles, DirectoryInfo dir, bool DelAfterCopy)
         {
             try
             {
@@ -550,9 +555,9 @@ namespace PdfConverter
                 txtDetails.SelectionStart = txtDetails.Text.Length;
                 txtDetails.ScrollToCaret();
                 System.Windows.Forms.Application.DoEvents();
-                
+
                 var innerDest = Path.Combine(dir.FullName, "PDFs");
-                if(!DelAfterCopy && !Directory.Exists(innerDest))
+                if (!DelAfterCopy && !Directory.Exists(innerDest))
                 {
                     Directory.CreateDirectory(innerDest);
                 }
@@ -599,7 +604,7 @@ namespace PdfConverter
             System.Drawing.Imaging.Encoder qualityEncoder = System.Drawing.Imaging.Encoder.Quality;
             EncoderParameters qualityEncoderParameters = new EncoderParameters(1);
             var quality = Convert.ToInt64(qualityDecimal);
-            
+
             EncoderParameter qualityEncoderParameter = new EncoderParameter(qualityEncoder, quality);
             qualityEncoderParameters.Param[0] = qualityEncoderParameter;
 
@@ -609,12 +614,12 @@ namespace PdfConverter
                 FrameDimension frameDimensions = new FrameDimension(imageFile.FrameDimensionsList[0]);
                 //int frameNum = imageFile.GetFrameCount(frameDimensions);
                 string[] jpegPaths = new string[frameNum];
-                
+
                 for (int frame = 0; frame < frameNum; frame++)
                 {
                     imageFile.SelectActiveFrame(frameDimensions, frame);
 
-                    
+
                     //    Image[] images = new Image[frameCount];
                     //    Guid objGuid = tiffImage.FrameDimensionsList[0];
                     //    FrameDimension objDimension = new FrameDimension(objGuid);
@@ -652,7 +657,7 @@ namespace PdfConverter
                 return jpegPaths;
             }
         }
-        
+
         private ImageCodecInfo GetEncoder(ImageFormat format)
         {
             ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
@@ -761,7 +766,7 @@ namespace PdfConverter
                     lst.Add(gid);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 SimpleLogger.SimpleLog.Log(ex);
                 MessageBox.Show("נכשל בקריאת נתונים מאקסל");
@@ -820,7 +825,7 @@ namespace PdfConverter
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 SimpleLogger.SimpleLog.Log(ex);
                 txtDetails.Text += @"Failed to delete file : " + fileName + Environment.NewLine;
@@ -833,7 +838,63 @@ namespace PdfConverter
 
         }
 
-        
+        private void bZip_Click(object sender, EventArgs e)
+        {
+           
+                txtDetails.Text += "Extracting Zip Files" + Environment.NewLine;
+                txtDetails.SelectionStart = txtDetails.Text.Length;
+                txtDetails.ScrollToCaret();
+                System.Windows.Forms.Application.DoEvents();
+                string path = txtDir.Text;
+                var dirInfo = new DirectoryInfo(path);
+                var lallFiles = dirInfo.GetFiles("*.zip", SearchOption.AllDirectories).ToList();
+
+                txtDetails.Text += "Found " + lallFiles.Count() + " files to extract" + Environment.NewLine;
+                txtDetails.SelectionStart = txtDetails.Text.Length;
+                txtDetails.ScrollToCaret();
+                System.Windows.Forms.Application.DoEvents();
+
+                foreach (var zipFilePath in lallFiles)
+                {
+                    try
+                    {
+                        string filename = Path.GetFileNameWithoutExtension(zipFilePath.FullName);
+                        string extractionDirectory = Path.Combine(path, filename);
+
+                        if (!Directory.Exists(extractionDirectory))
+                        {
+                            Directory.CreateDirectory(extractionDirectory);
+                        }
+                        txtDetails.Text += @"extracting zip file : " + filename + Environment.NewLine;
+                        txtDetails.SelectionStart = txtDetails.Text.Length;
+                        txtDetails.ScrollToCaret();
+                        System.Windows.Forms.Application.DoEvents();
+
+                        ZipFile.ExtractToDirectory(zipFilePath.FullName, extractionDirectory);
+
+                        var extractedDirInfo = new DirectoryInfo(extractionDirectory);
+                        var extractedFiles = dirInfo.GetFiles("*.xml", SearchOption.AllDirectories).ToList();
+                        foreach (var file in extractedFiles)
+                        {
+                            File.Delete(file.FullName);
+                        }
+
+                        File.Delete(zipFilePath.FullName);
+                    }
+                    catch (Exception ex)
+                    {
+                        SimpleLogger.SimpleLog.Log(ex);
+                        txtDetails.Text += @"Failed to exctract file : " + zipFilePath.Name + Environment.NewLine;
+                        txtDetails.SelectionStart = txtDetails.Text.Length;
+                        txtDetails.ScrollToCaret();
+                        System.Windows.Forms.Application.DoEvents();
+                    }
+                }
+            
+            
+        }
+
+
         //private bool PrepareInviorment()
         //{
         //    try

@@ -28,191 +28,203 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.btnStart = new System.Windows.Forms.Button();
-            this.btnBrowse = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.txtDir = new System.Windows.Forms.TextBox();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
-            this.lblPb = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
-            this.txtDetails = new System.Windows.Forms.RichTextBox();
-            this.btnBrowseArchive = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
-            this.txtArchive = new System.Windows.Forms.TextBox();
-            this.btnDel = new System.Windows.Forms.Button();
-            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
-            this.txtQuality = new System.Windows.Forms.NumericUpDown();
-            this.label3 = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtQuality)).BeginInit();
-            this.SuspendLayout();
+            components = new System.ComponentModel.Container();
+            btnStart = new System.Windows.Forms.Button();
+            btnBrowse = new System.Windows.Forms.Button();
+            label1 = new System.Windows.Forms.Label();
+            txtDir = new System.Windows.Forms.TextBox();
+            progressBar1 = new System.Windows.Forms.ProgressBar();
+            lblPb = new System.Windows.Forms.Label();
+            button1 = new System.Windows.Forms.Button();
+            txtDetails = new System.Windows.Forms.RichTextBox();
+            btnBrowseArchive = new System.Windows.Forms.Button();
+            label2 = new System.Windows.Forms.Label();
+            txtArchive = new System.Windows.Forms.TextBox();
+            btnDel = new System.Windows.Forms.Button();
+            bindingSource1 = new System.Windows.Forms.BindingSource(components);
+            txtQuality = new System.Windows.Forms.NumericUpDown();
+            label3 = new System.Windows.Forms.Label();
+            bZip = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)bindingSource1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)txtQuality).BeginInit();
+            SuspendLayout();
             // 
             // btnStart
             // 
-            this.btnStart.Location = new System.Drawing.Point(751, 166);
-            this.btnStart.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(88, 27);
-            this.btnStart.TabIndex = 8;
-            this.btnStart.Text = "התחל";
-            this.btnStart.UseVisualStyleBackColor = true;
-            this.btnStart.Click += new System.EventHandler(this.btnStart_Click);
+            btnStart.Location = new System.Drawing.Point(751, 166);
+            btnStart.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            btnStart.Name = "btnStart";
+            btnStart.Size = new System.Drawing.Size(88, 27);
+            btnStart.TabIndex = 8;
+            btnStart.Text = "התחל";
+            btnStart.UseVisualStyleBackColor = true;
+            btnStart.Click += btnStart_Click;
             // 
             // btnBrowse
             // 
-            this.btnBrowse.Location = new System.Drawing.Point(751, 33);
-            this.btnBrowse.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.btnBrowse.Name = "btnBrowse";
-            this.btnBrowse.Size = new System.Drawing.Size(88, 27);
-            this.btnBrowse.TabIndex = 7;
-            this.btnBrowse.Text = "בחר";
-            this.btnBrowse.UseVisualStyleBackColor = true;
-            this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
+            btnBrowse.Location = new System.Drawing.Point(751, 33);
+            btnBrowse.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            btnBrowse.Name = "btnBrowse";
+            btnBrowse.Size = new System.Drawing.Size(88, 27);
+            btnBrowse.TabIndex = 7;
+            btnBrowse.Text = "בחר";
+            btnBrowse.UseVisualStyleBackColor = true;
+            btnBrowse.Click += btnBrowse_Click;
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(875, 39);
-            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(66, 15);
-            this.label1.TabIndex = 6;
-            this.label1.Text = "בחר תיקייה";
+            label1.AutoSize = true;
+            label1.Location = new System.Drawing.Point(875, 39);
+            label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label1.Name = "label1";
+            label1.Size = new System.Drawing.Size(66, 15);
+            label1.TabIndex = 6;
+            label1.Text = "בחר תיקייה";
             // 
             // txtDir
             // 
-            this.txtDir.Location = new System.Drawing.Point(117, 37);
-            this.txtDir.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.txtDir.Name = "txtDir";
-            this.txtDir.Size = new System.Drawing.Size(601, 23);
-            this.txtDir.TabIndex = 5;
+            txtDir.Location = new System.Drawing.Point(117, 37);
+            txtDir.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            txtDir.Name = "txtDir";
+            txtDir.Size = new System.Drawing.Size(601, 23);
+            txtDir.TabIndex = 5;
             // 
             // progressBar1
             // 
-            this.progressBar1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.progressBar1.Location = new System.Drawing.Point(117, 132);
-            this.progressBar1.Margin = new System.Windows.Forms.Padding(2);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(722, 22);
-            this.progressBar1.TabIndex = 9;
-            this.progressBar1.Visible = false;
+            progressBar1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
+            progressBar1.Location = new System.Drawing.Point(117, 132);
+            progressBar1.Margin = new System.Windows.Forms.Padding(2);
+            progressBar1.Name = "progressBar1";
+            progressBar1.Size = new System.Drawing.Size(722, 22);
+            progressBar1.TabIndex = 9;
+            progressBar1.Visible = false;
             // 
             // lblPb
             // 
-            this.lblPb.AutoSize = true;
-            this.lblPb.Location = new System.Drawing.Point(114, 77);
-            this.lblPb.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.lblPb.Name = "lblPb";
-            this.lblPb.Size = new System.Drawing.Size(0, 15);
-            this.lblPb.TabIndex = 10;
+            lblPb.AutoSize = true;
+            lblPb.Location = new System.Drawing.Point(114, 77);
+            lblPb.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            lblPb.Name = "lblPb";
+            lblPb.Size = new System.Drawing.Size(0, 15);
+            lblPb.TabIndex = 10;
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(751, 386);
-            this.button1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(88, 27);
-            this.button1.TabIndex = 11;
-            this.button1.Text = "סגור";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            button1.Location = new System.Drawing.Point(751, 386);
+            button1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            button1.Name = "button1";
+            button1.Size = new System.Drawing.Size(88, 27);
+            button1.TabIndex = 11;
+            button1.Text = "סגור";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
             // 
             // txtDetails
             // 
-            this.txtDetails.BackColor = System.Drawing.Color.Silver;
-            this.txtDetails.Location = new System.Drawing.Point(37, 203);
-            this.txtDetails.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.txtDetails.Name = "txtDetails";
-            this.txtDetails.ReadOnly = true;
-            this.txtDetails.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.txtDetails.Size = new System.Drawing.Size(898, 177);
-            this.txtDetails.TabIndex = 12;
-            this.txtDetails.Text = "";
+            txtDetails.BackColor = System.Drawing.Color.Silver;
+            txtDetails.Location = new System.Drawing.Point(37, 203);
+            txtDetails.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            txtDetails.Name = "txtDetails";
+            txtDetails.ReadOnly = true;
+            txtDetails.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+            txtDetails.Size = new System.Drawing.Size(898, 177);
+            txtDetails.TabIndex = 12;
+            txtDetails.Text = "";
             // 
             // btnBrowseArchive
             // 
-            this.btnBrowseArchive.Location = new System.Drawing.Point(751, 74);
-            this.btnBrowseArchive.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.btnBrowseArchive.Name = "btnBrowseArchive";
-            this.btnBrowseArchive.Size = new System.Drawing.Size(88, 27);
-            this.btnBrowseArchive.TabIndex = 15;
-            this.btnBrowseArchive.Text = "בחר";
-            this.btnBrowseArchive.UseVisualStyleBackColor = true;
-            this.btnBrowseArchive.Click += new System.EventHandler(this.btnBrowseArchive_Click);
+            btnBrowseArchive.Location = new System.Drawing.Point(751, 74);
+            btnBrowseArchive.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            btnBrowseArchive.Name = "btnBrowseArchive";
+            btnBrowseArchive.Size = new System.Drawing.Size(88, 27);
+            btnBrowseArchive.TabIndex = 15;
+            btnBrowseArchive.Text = "בחר";
+            btnBrowseArchive.UseVisualStyleBackColor = true;
+            btnBrowseArchive.Click += btnBrowseArchive_Click;
             // 
             // label2
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(862, 85);
-            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(73, 15);
-            this.label2.TabIndex = 14;
-            this.label2.Text = "תקיית ארכיון";
+            label2.AutoSize = true;
+            label2.Location = new System.Drawing.Point(862, 85);
+            label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            label2.Name = "label2";
+            label2.Size = new System.Drawing.Size(73, 15);
+            label2.TabIndex = 14;
+            label2.Text = "תקיית ארכיון";
             // 
             // txtArchive
             // 
-            this.txtArchive.Location = new System.Drawing.Point(117, 77);
-            this.txtArchive.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.txtArchive.Name = "txtArchive";
-            this.txtArchive.Size = new System.Drawing.Size(601, 23);
-            this.txtArchive.TabIndex = 13;
+            txtArchive.Location = new System.Drawing.Point(117, 77);
+            txtArchive.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            txtArchive.Name = "txtArchive";
+            txtArchive.Size = new System.Drawing.Size(601, 23);
+            txtArchive.TabIndex = 13;
             // 
             // btnDel
             // 
-            this.btnDel.Location = new System.Drawing.Point(573, 166);
-            this.btnDel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.btnDel.Name = "btnDel";
-            this.btnDel.Size = new System.Drawing.Size(88, 27);
-            this.btnDel.TabIndex = 16;
-            this.btnDel.Text = "מחק תקיות";
-            this.btnDel.UseVisualStyleBackColor = true;
-            this.btnDel.Click += new System.EventHandler(this.btnDel_Click);
+            btnDel.Location = new System.Drawing.Point(523, 166);
+            btnDel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            btnDel.Name = "btnDel";
+            btnDel.Size = new System.Drawing.Size(88, 27);
+            btnDel.TabIndex = 16;
+            btnDel.Text = "מחק תקיות";
+            btnDel.UseVisualStyleBackColor = true;
+            btnDel.Click += btnDel_Click;
             // 
             // txtQuality
             // 
-            this.txtQuality.Location = new System.Drawing.Point(117, 170);
-            this.txtQuality.Name = "txtQuality";
-            this.txtQuality.Size = new System.Drawing.Size(46, 23);
-            this.txtQuality.TabIndex = 18;
+            txtQuality.Location = new System.Drawing.Point(117, 170);
+            txtQuality.Name = "txtQuality";
+            txtQuality.Size = new System.Drawing.Size(46, 23);
+            txtQuality.TabIndex = 18;
             // 
             // label3
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(169, 172);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(347, 15);
-            this.label3.TabIndex = 19;
-            this.label3.Text = "איכות התמונה כך ש 100 זה האיכות הכי טובה ו 0 האיכות הכי גרועה";
+            label3.AutoSize = true;
+            label3.Location = new System.Drawing.Point(169, 172);
+            label3.Name = "label3";
+            label3.Size = new System.Drawing.Size(347, 15);
+            label3.TabIndex = 19;
+            label3.Text = "איכות התמונה כך ש 100 זה האיכות הכי טובה ו 0 האיכות הכי גרועה";
+            // 
+            // bZip
+            // 
+            bZip.Location = new System.Drawing.Point(630, 166);
+            bZip.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+            bZip.Name = "bZip";
+            bZip.Size = new System.Drawing.Size(88, 27);
+            bZip.TabIndex = 20;
+            bZip.Text = "חילוץ ZIPs";
+            bZip.UseVisualStyleBackColor = true;
+            bZip.Click += bZip_Click;
             // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(962, 415);
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.txtQuality);
-            this.Controls.Add(this.btnDel);
-            this.Controls.Add(this.btnBrowseArchive);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.txtArchive);
-            this.Controls.Add(this.txtDetails);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.lblPb);
-            this.Controls.Add(this.progressBar1);
-            this.Controls.Add(this.btnStart);
-            this.Controls.Add(this.btnBrowse);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.txtDir);
-            this.Margin = new System.Windows.Forms.Padding(2);
-            this.Name = "Form1";
-            this.Text = "Form1";
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtQuality)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+            AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            ClientSize = new System.Drawing.Size(962, 415);
+            Controls.Add(bZip);
+            Controls.Add(label3);
+            Controls.Add(txtQuality);
+            Controls.Add(btnDel);
+            Controls.Add(btnBrowseArchive);
+            Controls.Add(label2);
+            Controls.Add(txtArchive);
+            Controls.Add(txtDetails);
+            Controls.Add(button1);
+            Controls.Add(lblPb);
+            Controls.Add(progressBar1);
+            Controls.Add(btnStart);
+            Controls.Add(btnBrowse);
+            Controls.Add(label1);
+            Controls.Add(txtDir);
+            Margin = new System.Windows.Forms.Padding(2);
+            Name = "Form1";
+            Text = "Form1";
+            ((System.ComponentModel.ISupportInitialize)bindingSource1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)txtQuality).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -232,6 +244,7 @@
         private System.Windows.Forms.BindingSource bindingSource1;
         private System.Windows.Forms.NumericUpDown txtQuality;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button bZip;
     }
 }
 
