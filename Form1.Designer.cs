@@ -40,13 +40,8 @@
             btnBrowseArchive = new System.Windows.Forms.Button();
             label2 = new System.Windows.Forms.Label();
             txtArchive = new System.Windows.Forms.TextBox();
-            btnDel = new System.Windows.Forms.Button();
             bindingSource1 = new System.Windows.Forms.BindingSource(components);
-            txtQuality = new System.Windows.Forms.NumericUpDown();
-            label3 = new System.Windows.Forms.Label();
-            bZip = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)bindingSource1).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)txtQuality).BeginInit();
             SuspendLayout();
             // 
             // btnStart
@@ -160,53 +155,11 @@
             txtArchive.Size = new System.Drawing.Size(601, 23);
             txtArchive.TabIndex = 13;
             // 
-            // btnDel
-            // 
-            btnDel.Location = new System.Drawing.Point(523, 166);
-            btnDel.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            btnDel.Name = "btnDel";
-            btnDel.Size = new System.Drawing.Size(88, 27);
-            btnDel.TabIndex = 16;
-            btnDel.Text = "מחק תקיות";
-            btnDel.UseVisualStyleBackColor = true;
-            btnDel.Click += btnDel_Click;
-            // 
-            // txtQuality
-            // 
-            txtQuality.Location = new System.Drawing.Point(117, 170);
-            txtQuality.Name = "txtQuality";
-            txtQuality.Size = new System.Drawing.Size(46, 23);
-            txtQuality.TabIndex = 18;
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new System.Drawing.Point(169, 172);
-            label3.Name = "label3";
-            label3.Size = new System.Drawing.Size(347, 15);
-            label3.TabIndex = 19;
-            label3.Text = "איכות התמונה כך ש 100 זה האיכות הכי טובה ו 0 האיכות הכי גרועה";
-            // 
-            // bZip
-            // 
-            bZip.Location = new System.Drawing.Point(630, 166);
-            bZip.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            bZip.Name = "bZip";
-            bZip.Size = new System.Drawing.Size(88, 27);
-            bZip.TabIndex = 20;
-            bZip.Text = "חילוץ ZIPs";
-            bZip.UseVisualStyleBackColor = true;
-            bZip.Click += bZip_Click;
-            // 
             // Form1
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(962, 415);
-            Controls.Add(bZip);
-            Controls.Add(label3);
-            Controls.Add(txtQuality);
-            Controls.Add(btnDel);
             Controls.Add(btnBrowseArchive);
             Controls.Add(label2);
             Controls.Add(txtArchive);
@@ -222,7 +175,6 @@
             Name = "Form1";
             Text = "Form1";
             ((System.ComponentModel.ISupportInitialize)bindingSource1).EndInit();
-            ((System.ComponentModel.ISupportInitialize)txtQuality).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -240,11 +192,7 @@
         private System.Windows.Forms.Button btnBrowseArchive;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtArchive;
-        private System.Windows.Forms.Button btnDel;
         private System.Windows.Forms.BindingSource bindingSource1;
-        private System.Windows.Forms.NumericUpDown txtQuality;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button bZip;
     }
 }
 
