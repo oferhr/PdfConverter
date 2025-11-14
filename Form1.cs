@@ -1,4 +1,71 @@
-﻿using IronPdf;
+﻿//============================================================================
+// File: Form1.cs
+// Purpose: Main application window and core PDF conversion logic
+//
+// Description:
+//   This is the main Windows Forms UI and processing engine for the PdfConverter
+//   application. It handles batch conversion of multiple document formats to PDF,
+//   merging PDFs by directory, archive management, and cleanup operations.
+//
+// Key Responsibilities:
+//   - User interface for directory selection and conversion control
+//   - Batch file processing and format detection
+//   - Multi-format to PDF conversion (JPG, TIFF, HTML, DOC, DOCX)
+//   - PDF merging - combines all PDFs in a directory into single document
+//   - Archive management - ZIP extraction and directory archiving
+//   - Excel-based deletion rules processing
+//   - Progress tracking and detailed logging
+//   - Error handling and recovery
+//
+// Supported File Formats:
+//   - Images: .jpg, .jpeg, .tiff, .tif
+//   - Documents: .doc, .docx
+//   - Web: .html, .htm
+//   - Archives: .zip
+//
+// Processing Workflow:
+//   1. User selects source directory (contains subdirectories with files)
+//   2. User selects archive destination directory
+//   3. Application scans all subdirectories
+//   4. For each subdirectory:
+//      - Converts all supported files to PDF
+//      - Merges all PDFs into single document
+//      - Moves/archives the merged PDF
+//      - Cleans up source files (optional)
+//   5. Applies Excel-based deletion rules
+//   6. Logs all operations to .\Log directory
+//
+// Dependencies:
+//   - IronPDF: Primary PDF conversion and merging library
+//   - Spire.PDF: Secondary PDF processing library
+//   - Microsoft Office Interop: Word document conversion (requires Office installed)
+//   - ClosedXML: Excel file reading for deletion rules
+//   - SixLabors.ImageSharp: Image processing
+//   - SimpleLogger: Custom logging framework
+//
+// Configuration:
+//   - App.config: Contains Excel deletion rules file path
+//   - Properties.Settings: Persists user-selected directory paths
+//
+// Output:
+//   - Merged PDFs in archive directory
+//   - Log files in .\Log directory
+//   - Progress updates in UI (progress bar + detail text)
+//
+// Error Handling:
+//   - All operations wrapped in try-catch blocks
+//   - Errors logged with file names and stack traces
+//   - Failed files moved to error directories
+//   - User notified of overall success/failure
+//
+// Notes:
+//   - Hebrew language UI (messages in Hebrew)
+//   - Designed for high-volume batch processing
+//   - Thread-safe logging for concurrent operations
+//   - Settings persistence across application restarts
+//============================================================================
+
+using IronPdf;
 using Microsoft.Office.Interop.Word;
 using SimpleLogger;
 using Spire.Pdf;
@@ -18,9 +85,17 @@ using System.Xml.Linq;
 
 namespace PdfConverter
 {
+    /// <summary>
+    /// Main application form providing UI and core PDF conversion functionality.
+    /// Handles batch conversion of multiple document formats to PDF with merging and archival capabilities.
+    /// </summary>
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public partial class Form1 : Form
     {
+        /// <summary>
+        /// Initializes the main form, sets up IronPDF logging, and restores user settings.
+        /// Loads previously selected directory paths from application settings.
+        /// </summary>
         public Form1()
         {
             InitializeComponent();
@@ -43,6 +118,12 @@ namespace PdfConverter
             }
         }
 
+        /// <summary>
+        /// Handles the Browse button click event for selecting the source directory.
+        /// Opens a folder browser dialog and persists the selected path to application settings.
+        /// </summary>
+        /// <param name="sender">The button that triggered the event</param>
+        /// <param name="e">Event arguments</param>
         private void btnBrowse_Click(object sender, EventArgs e)
         {
             using (var fbd = new FolderBrowserDialog())
@@ -58,12 +139,27 @@ namespace PdfConverter
             }
         }
 
+        /// <summary>
+        /// Handles the Start button click event to begin the PDF conversion process.
+        /// Validates directory selections, initializes logging, starts the conversion workflow,
+        /// and displays the final result to the user.
+        /// </summary>
+        /// <param name="sender">The button that triggered the event</param>
+        /// <param name="e">Event arguments</param>
+        /// <remarks>
+        /// This method:
+        /// 1. Validates that both source and archive directories are selected
+        /// 2. Initializes the log file in .\Log directory
+        /// 3. Shows and resets the progress bar
+        /// 4. Calls ConvertFiles() to perform the actual conversion
+        /// 5. Displays success or failure message (Hebrew)
+        /// </remarks>
         private void btnStart_Click(object sender, EventArgs e)
         {
 
             if (string.IsNullOrEmpty(txtDir.Text) || string.IsNullOrEmpty(txtArchive.Text))
             {
-                MessageBox.Show("יש לבחור תיקייה");
+                MessageBox.Show("יש לבחור תיקייה");  // "Please select a folder"
                 return;
             }
             btnStart.Enabled = false;
@@ -79,6 +175,7 @@ namespace PdfConverter
             System.Windows.Forms.Application.DoEvents();
             var ok = ConvertFiles();
             var msg = ok ? "הפעולה הסתיימה בהצלחה" : "הפעולה נכשלה. אנא בדוק את התקיות ואת קובץ הלוג";
+            // "Operation completed successfully" : "Operation failed. Please check the folders and log file"
             progressBar1.Value = 100;
             System.Windows.Forms.Application.DoEvents();
             SimpleLog.Log(@"End of operation - " + DateTime.Now.ToString());
@@ -94,6 +191,27 @@ namespace PdfConverter
 
 
 
+        /// <summary>
+        /// Main orchestration method that coordinates the entire PDF conversion workflow.
+        /// Scans subdirectories, processes files by type, handles merging, and manages cleanup.
+        /// </summary>
+        /// <returns>True if the operation completed successfully, false if errors occurred</returns>
+        /// <remarks>
+        /// Processing steps:
+        /// 1. Scans all subdirectories in the source directory
+        /// 2. For each subdirectory:
+        ///    - Detects file types (.jpg, .tiff, .html, .doc, .docx, .zip)
+        ///    - Converts files to PDF using appropriate converter
+        ///    - Tracks successful and failed conversions
+        /// 3. Merges all PDFs in each subdirectory into single document
+        /// 4. Moves merged PDFs to archive directory
+        /// 5. Cleans up source files and directories
+        /// 6. Applies Excel-based deletion rules
+        /// 7. Updates progress bar and logs all operations
+        ///
+        /// All errors are logged with file names and stack traces.
+        /// Failed files are moved to error directories for manual review.
+        /// </remarks>
         private bool ConvertFiles()
         {
             var files = new List<string>();
@@ -196,6 +314,18 @@ namespace PdfConverter
 
             return processOK;
         }
+
+        /// <summary>
+        /// Converts a Microsoft Word document (DOC/DOCX) to PDF format.
+        /// </summary>
+        /// <param name="file">Full path to the Word document file</param>
+        /// <param name="fn">Output filename (without extension)</param>
+        /// <remarks>
+        /// Uses Microsoft Office Interop to convert Word documents to PDF.
+        /// Requires Microsoft Office (Word) to be installed on the system.
+        /// The Word application runs in invisible mode during conversion.
+        /// The PDF is saved in the same directory as the source file.
+        /// </remarks>
         private static void ConvertWord(string file, string fn)
         {
             var appWord = new Microsoft.Office.Interop.Word.Application();
@@ -205,11 +335,28 @@ namespace PdfConverter
             wordDocument.Close();
             appWord.Quit();
         }
+
+        /// <summary>
+        /// Converts an HTML file to PDF format using Chrome rendering engine.
+        /// </summary>
+        /// <param name="file">Full path to the HTML file</param>
+        /// <param name="fn">Output filename (without extension)</param>
+        /// <remarks>
+        /// Uses IronPDF's ChromePdfRenderer for high-quality HTML to PDF conversion.
+        /// Configuration:
+        /// - Input encoding: Windows-1255 (Hebrew support)
+        /// - Paper size: A4
+        /// - CSS media type: Print
+        /// - Margins: 10 units on all sides
+        /// - Zoom: 100%
+        /// - Background printing: Disabled
+        /// The PDF is saved in the same directory as the source file.
+        /// </remarks>
         private static void ProcessHtml(string file, string fn)
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var Renderer = new ChromePdfRenderer();
-            Renderer.RenderingOptions.InputEncoding = Encoding.GetEncoding(1255);
+            Renderer.RenderingOptions.InputEncoding = Encoding.GetEncoding(1255);  // Hebrew encoding
             Renderer.RenderingOptions.PrintHtmlBackgrounds = false;
             //Renderer.PrintOptions.PaperSize = PdfPrintOptions.PdfPaperSize.A4;
             //Renderer.PrintOptions.CssMediaType = PdfPrintOptions.PdfCssMediaType.Print;
@@ -312,6 +459,19 @@ namespace PdfConverter
             //}
 
         }
+
+        /// <summary>
+        /// Converts a TIFF image file to PDF format.
+        /// </summary>
+        /// <param name="file">Full path to the TIFF file</param>
+        /// <param name="fn">Output filename (without extension)</param>
+        /// <remarks>
+        /// Uses IronPDF's ImageToPdfConverter for TIFF to PDF conversion.
+        /// Supports both single-page and multi-page TIFF files.
+        /// The conversion automatically handles compression to reduce file size.
+        /// The PDF is saved in the same directory as the source file.
+        /// Note: There are multiple commented-out alternative implementations for reference.
+        /// </remarks>
         private static void ProcessTiff(string file, string fn)
         {
             //Image tiffImage = Image.FromFile(file);
@@ -390,6 +550,19 @@ namespace PdfConverter
 
             //}
         }
+
+        /// <summary>
+        /// Converts a JPEG image file to PDF format.
+        /// </summary>
+        /// <param name="file">Full path to the JPEG file</param>
+        /// <param name="fn">Output filename (without extension)</param>
+        /// <remarks>
+        /// Uses Spire.PDF library for JPEG to PDF conversion.
+        /// The image is placed on an A4-sized page with no margins.
+        /// The page size is adjusted to match the image dimensions.
+        /// The PDF is saved in the same directory as the source file.
+        /// Note: There are alternative commented-out implementations for reference.
+        /// </remarks>
         private static void ProcessJpg(string file, string fn)
         {
             // ImageToPdfConverter.ImageToPdf(file).SaveAs(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
@@ -427,6 +600,23 @@ namespace PdfConverter
             //doc.SaveToFile(Path.Combine(Path.GetDirectoryName(file), fn + ".pdf"));
             //doc.Close();
         }
+
+        /// <summary>
+        /// Merges all PDF files in a single directory into one consolidated PDF document.
+        /// </summary>
+        /// <param name="dir">Directory containing PDF files to merge</param>
+        /// <param name="Now">Timestamp string for error folder naming</param>
+        /// <param name="convertedOK">Indicates if all conversions were successful</param>
+        /// <returns>True if merge was successful, false otherwise</returns>
+        /// <remarks>
+        /// This method:
+        /// 1. Collects all PDF files in the directory
+        /// 2. Uses IronPDF to merge them into a single document
+        /// 3. Names the output file after the directory
+        /// 4. Logs the operation
+        /// 5. On error, creates an error folder with timestamp
+        /// The merged PDF is saved in the same directory as the source PDFs.
+        /// </remarks>
         private bool MergeSingleDir(DirectoryInfo dir, string Now, bool convertedOK)
         {
             var pdfDocuments = new List<IronPdf.PdfDocument>();
